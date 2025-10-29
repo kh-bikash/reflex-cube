@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Virtual environment
+venv/
+backend/venv/
+env/
+.venv/
+
+# Node modules
+node_modules/
+
+# Build directories
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# VSCode
+.vscode/
+
+# macOS / Windows junk
+.DS_Store
+Thumbs.db
