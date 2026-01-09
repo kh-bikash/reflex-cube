@@ -93,37 +93,15 @@ Acts as a mock long-term memory layer
 🛠️ Technology Stack
 Frontend
 <p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="32"/> React (Vite) <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="32"/> TypeScript <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-plain.svg" width="32"/> TailwindCSS <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/threejs/threejs-original.svg" width="32"/> Three.js </p>
-
-Shadcn/UI
-
-Framer Motion
-
 Backend
 <p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" width="32"/> Python <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/fastapi/fastapi-original.svg" width="32"/> FastAPI </p>
-
-SQLAlchemy
-
-SQLite
-
-Pydantic
 
 AI / ML
 <p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tensorflow/tensorflow-original.svg" width="32"/> TensorFlow <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pytorch/pytorch-original.svg" width="32"/> PyTorch </p>
 
-External LLM APIs (Pollinations.ai, Mistral)
-
-Prompt-based inference pipelines
-
 DevOps
 <p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" width="32"/> Docker <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/git/git-original.svg" width="32"/> Git LFS </p>
-📂 Project Structure
-reflex-cube/
-├── backend/
-├── frontend/
-├── storage/
-├── docker-compose.yml
-├── usage_example.py
-└── README.md
+
 
 🚀 Getting Started
 Prerequisites
@@ -145,6 +123,16 @@ cd frontend
 npm install
 npm run dev
 
+Backend Setup (Uvicorn)
+python -m venv venv
+source venv/bin/activate
+pip install -r backend/requirements.txt
+uvicorn app.api:app --reload
+
+
+Backend runs on:
+
+http://localhost:8000
 Docker (Recommended)
 docker-compose up --build
 
