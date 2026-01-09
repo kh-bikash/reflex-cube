@@ -1,6 +1,8 @@
 // frontend/src/components/PromptModel.tsx
 import React, { useState, useEffect } from "react";
 import { createModel, getJobStatus, requestModelZip } from "../lib/api";
+import { TrainingTerminal } from "./TrainingTerminal";
+import { motion } from "framer-motion";
 
 const PromptModel: React.FC = () => {
   const [prompt, setPrompt] = useState("");
@@ -11,6 +13,7 @@ const PromptModel: React.FC = () => {
   const [resultPath, setResultPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [zipBusy, setZipBusy] = useState(false);
+  const [selectedTask, setSelectedTask] = useState("auto");
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return setError("Please enter a prompt.");
@@ -20,7 +23,11 @@ const PromptModel: React.FC = () => {
     setProgress(0);
     setResultPath(null);
     try {
-      const res = await createModel({ name: "frontend-demo", prompt });
+      const res = await createModel({
+        name: "frontend-demo",
+        prompt,
+        task: selectedTask === "auto" ? undefined : selectedTask
+      });
       setJobId(res.job_id);
     } catch (e: any) {
       setError(e.message || "Failed to create job");
@@ -97,8 +104,8 @@ const PromptModel: React.FC = () => {
         console.error("zip fallback failed", fallbackErr);
         setError(
           "Failed to create or download zip. Check backend logs or try again. (" +
-            (fallbackErr?.message || String(fallbackErr)) +
-            ")"
+          (fallbackErr?.message || String(fallbackErr)) +
+          ")"
         );
       }
     } finally {
@@ -107,7 +114,7 @@ const PromptModel: React.FC = () => {
   };
 
   return (
-    <div className="prompt-model-wrapper max-w-2xl mx-auto p-4">
+    <div className="prompt-model-wrapper max-w-2xl mx-auto p-4 pt-32">
       <h3 className="text-2xl font-semibold mb-4">Generate AI Model</h3>
 
       <textarea
@@ -117,6 +124,24 @@ const PromptModel: React.FC = () => {
         rows={6}
         className="prompt-textarea w-full rounded-md p-3 bg-background/30 border border-primary/10"
       />
+
+      <div className="flex gap-4 mt-4 items-center">
+        <select
+          className="bg-zinc-900 border border-white/10 rounded px-3 py-2 text-sm text-zinc-300 focus:border-neon-cyan focus:outline-none"
+          value={selectedTask}
+          onChange={(e) => setSelectedTask(e.target.value)}
+        >
+          <option value="auto">Auto-Detect Service</option>
+          <option value="text-generation">Text Generation (GPT)</option>
+          <option value="sentiment-analysis">Sentiment Analysis</option>
+          <option value="summarization">Summarization</option>
+          <option value="translation">Translation</option>
+          <option value="question-answering">Question Answering</option>
+        </select>
+        <span className="text-xs text-zinc-500">
+          {selectedTask === 'auto' ? 'AI will decide the best architecture.' : 'Forces a specific model pipeline.'}
+        </span>
+      </div>
 
       <div className="flex gap-3 mt-4">
         <button
@@ -147,12 +172,24 @@ const PromptModel: React.FC = () => {
       {error && <div className="error-msg text-red-400 mt-3">{error}</div>}
 
       {status !== "idle" && (
-        <div className="status-block mt-4">
-          <div className="mb-2">
-            Status: <strong>{status}</strong>
+        <div className="status-block mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-sm font-medium text-zinc-400">
+              Status: <span className="text-neon-cyan uppercase">{status}</span>
+            </div>
+            <div className="text-xs font-mono text-zinc-500">{progress}%</div>
           </div>
-          <progress value={progress} max={100} className="w-full" />
-          <div className="text-xs text-muted-foreground mt-2">{progress}%</div>
+
+          <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden mb-6">
+            <motion.div
+              className="h-full bg-neon-cyan"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ type: "spring", stiffness: 50 }}
+            />
+          </div>
+
+          <TrainingTerminal jobId={jobId!} />
         </div>
       )}
 

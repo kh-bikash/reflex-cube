@@ -29,3 +29,21 @@ build/
 # macOS / Windows junk
 .DS_Store
 Thumbs.db
+
+# Storage and model artifacts (avoid committing large models)
+/storage/
+*.safetensors
+*.ckpt
+*.pt
+*.model
+*.h5
+
+# Logs and debug outputs
+*.log
+
+# Local environment files
+.env.local
+.env.*.local
+
+# Node lock / build artifacts
+package-lock.json

@@ -13,3 +13,4 @@ if not exist .venv (
 REM Run uvicorn
 uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
 pause
+

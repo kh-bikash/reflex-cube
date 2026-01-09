@@ -48,6 +48,17 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom Premium Palette
+        midnight: {
+          900: "#050505", // Deepest black
+          800: "#0a0a0a",
+          700: "#121212",
+        },
+        neon: {
+          cyan: "#00f0ff",
+          purple: "#7b61ff",
+          pink: "#ff0080",
+        },
         ai: {
           green: "hsl(var(--ai-green))",
           blue: "hsl(var(--ai-blue))",
@@ -64,6 +75,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        display: ["Syne", "sans-serif"],
+        mono: ["Space Mono", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

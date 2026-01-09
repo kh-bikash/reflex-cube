@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
+import { openJobSSE } from "../lib/api";
 
 interface LogEntry {
   step: number;
@@ -11,13 +12,22 @@ const TrainingMonitor = ({ jobId }: { jobId: string }) => {
 
   useEffect(() => {
     if (!jobId) return;
-    const eventSrc = new EventSource(`${import.meta.env.VITE_API_URL}/api/logs/${jobId}`);
+
+    // Use centralized API helper
+    const eventSrc = openJobSSE(jobId);
+
     eventSrc.onmessage = (e) => {
       try {
         const entry = JSON.parse(e.data);
         if (entry.loss) setLogs((prev) => [...prev, entry]);
-      } catch {}
+      } catch { }
     };
+
+    eventSrc.onerror = (e) => {
+      // Optional: handle error or close if needed
+      // console.error("SSE error", e);
+    };
+
     return () => eventSrc.close();
   }, [jobId]);
 

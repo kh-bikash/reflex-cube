@@ -1,0 +1,3 @@
+Worker Alive: ['train_worker.py', 'test-spawn-job', '{}']
+Worker Alive: ['D:\\Projects\\reflexcube-v2\\backend\\train_worker.py', '546eecd6-403b-4c90-b2e9-763f94231fce', '{"name": "frontend-demo", "prompt": "Classify banking customer service queries.", "task": null}']
+Worker Alive: ['D:\\Projects\\reflexcube-v2\\backend\\train_worker.py', '3bb37a67-e2fe-4ba8-bf63-dad67075251a', '{"name": "frontend-demo", "prompt": "Classify banking service queries.", "task": null}']

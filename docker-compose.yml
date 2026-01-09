@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - reflex_data:/data
+    environment:
+      - DATABASE_URL=sqlite:////data/reflex.db
+    restart: always
+
+# Frontend would be built separately or served via Nginx in prod
+# For this dev setup, we focus on backend containerization as requested.
+
+volumes:
+  reflex_data:
