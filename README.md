@@ -7,13 +7,18 @@
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="48"/>
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/fastapi/fastapi-original.svg" width="48"/>
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" width="48"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tensorflow/tensorflow-original.svg" width="48"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pytorch/pytorch-original.svg" width="48"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/jupyter/jupyter-original.svg" width="48"/>
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Machine%20Learning-Enabled-brightgreen"/>
+  <img src="https://img.shields.io/badge/Artificial%20Intelligence-Modular-blueviolet"/>
+  <img src="https://img.shields.io/badge/NLP-Prompt--Driven-orange"/>
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python"/>
   <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi"/>
   <img src="https://img.shields.io/badge/React-Vite-61DAFB?logo=react"/>
-  <img src="https://img.shields.io/badge/TypeScript-Frontend-3178C6?logo=typescript"/>
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker"/>
   <img src="https://img.shields.io/badge/Git%20LFS-Enabled-lightgrey?logo=git"/>
 </p>
@@ -22,19 +27,19 @@
 
 ## 🚀 Overview
 
-**Reflex Cube** is a **modular AI-powered platform** that enables building **AI models and AI applications directly from prompts**, primarily focused on **Natural Language Processing (NLP)**.
+**Reflex Cube** is a modular AI-powered platform that enables building **AI models and AI applications directly from prompts**, primarily focused on **Natural Language Processing (NLP)**.
 
-The system is designed around a **Cube Architecture**, where each **Cube** represents an independent, specialized AI module or agent. This architecture allows the platform to scale seamlessly across **business automation, startup solutions, AI services, and research experimentation**.
+The system is built using a **Cube Architecture**, where each **Cube** represents an independent AI module or intelligent agent. This design allows Reflex Cube to scale across **startup products, business automation, AI services, and research experimentation**.
 
 ---
 
 ## 🧠 Cube Architecture
 
 Each **Cube** is:
-- Independent
-- Task-specific
-- API-driven
-- Pluggable and extensible
+- Independent  
+- Task-specific  
+- API-driven  
+- Pluggable and extensible  
 
 ```text
 Frontend (React + 3D UI)
@@ -51,6 +56,7 @@ FastAPI Gateway
         ↓
 Persistence & LLM APIs
 
+```
 ✨ Key Capabilities
 
 Prompt-driven AI model creation
@@ -86,24 +92,14 @@ Acts as a mock long-term memory layer
 
 🛠️ Technology Stack
 Frontend
-
-React (Vite)
-
-TypeScript
-
-TailwindCSS
+<p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="32"/> React (Vite) <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="32"/> TypeScript <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-plain.svg" width="32"/> TailwindCSS <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/threejs/threejs-original.svg" width="32"/> Three.js </p>
 
 Shadcn/UI
 
 Framer Motion
 
-Three.js (@react-three/fiber)
-
 Backend
-
-Python 3.10+
-
-FastAPI
+<p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" width="32"/> Python <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/fastapi/fastapi-original.svg" width="32"/> FastAPI </p>
 
 SQLAlchemy
 
@@ -112,19 +108,14 @@ SQLite
 Pydantic
 
 AI / ML
+<p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tensorflow/tensorflow-original.svg" width="32"/> TensorFlow <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pytorch/pytorch-original.svg" width="32"/> PyTorch </p>
 
 External LLM APIs (Pollinations.ai, Mistral)
 
 Prompt-based inference pipelines
 
 DevOps
-
-Docker
-
-Docker Compose
-
-Git LFS
-
+<p> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" width="32"/> Docker <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/git/git-original.svg" width="32"/> Git LFS </p>
 📂 Project Structure
 reflex-cube/
 ├── backend/
@@ -193,21 +184,3 @@ License information will be added soon.
 
 Reflex Cube focuses on clean architecture, modular AI systems, and real-world usability.
 It is designed for developers, researchers, startups, and businesses building intelligent systems.
-
-
----
-
-### ✅ This README is now:
-- **GitHub-polished**
-- **Research-ready**
-- **Investor-friendly**
-- **MSR / TIGP-appropriate**
-- **Visually strong without clutter**
-
-If you want next:
-- Architecture diagram (SVG)
-- API documentation
-- Hugging Face model integration section
-- Research abstract version
-
-Just say the word 🚀
