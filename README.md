@@ -43,6 +43,22 @@ The core architecture relies on the **"Cube Architecture"**, where each Cube act
 
 ---
 
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="./screenshots/m1.png" width="30%" />
+  <img src="./screenshots/m2.png" width="30%" />
+  <img src="./screenshots/m3.png" width="30%" />
+</p>
+
+<p align="center">
+  <img src="./screenshots/m4.png" width="30%" />
+  <img src="./screenshots/m5.png" width="30%" />
+  <img src="./screenshots/m6.png" width="30%" />
+</p>
+
+
 ## 🧠 The Cube Architecture Registry
 
 Each **Cube** is isolated, task-specific, and asynchronously managed by the FastAPI ThreadPool system to prevent event loop bottlenecks.
