@@ -1,205 +1,168 @@
-# 🧊 Reflex Cube
-### Prompt-Driven Modular AI Systems & 3D Intelligence Platform
+# Reflex Cube
+
+**AI Model Generation Platform — Build, Fine-Tune, and Deploy LLMs from Simple Prompts**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" width="48" alt="Python"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="48" alt="React"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="48" alt="TypeScript"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/fastapi/fastapi-original.svg" width="48" alt="FastAPI"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" width="48" alt="Docker"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/threejs/threejs-original.svg" width="48" alt="ThreeJs"/>
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pytorch/pytorch-original.svg" width="48" alt="PyTorch"/>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Machine%20Learning-Enabled-brightgreen"/>
-  <img src="https://img.shields.io/badge/Artificial%20Intelligence-Modular-blueviolet"/>
-  <img src="https://img.shields.io/badge/NLP-Prompt--Driven-orange"/>
-  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python"/>
-  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi"/>
-  <img src="https://img.shields.io/badge/React-Vite-61DAFB?logo=react"/>
-  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker"/>
-  <img src="https://img.shields.io/badge/Three.js-3D_UI-black?logo=three.js"/>
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white"/>
+  <img src="https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black"/>
+  <img src="https://img.shields.io/badge/PyTorch-ML_Engine-EE4C2C?logo=pytorch&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Three.js-3D_UI-black?logo=three.js&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white"/>
 </p>
 
 ---
 
-## 🚀 Overview
+## What is Reflex Cube?
 
-**Reflex Cube v2** is a highly modular AI-powered platform that enables the dynamic building of **AI models and intelligent applications directly from prompts**. Built with a deep focus on **Natural Language Processing (NLP)** through Hugging Face Transformers, it features an interactive 3D frontend interface allowing users to visualize and interact with deployed "Cubes".
+Reflex Cube is a platform for **AI model generation without complexity**. Describe what you want, and Reflex Cube handles the rest — from training a fine-tuned model to spinning up a specialized LLM agent — all through a clean UI backed by a high-performance FastAPI engine.
 
-The core architecture relies on the **"Cube Architecture"**, where each Cube acts as a specialized, independent AI module or intelligent agent tailored for a distinct business, creative, or utility function.
-
----
-
-## ✨ Key Capabilities
-
-- **Prompt-Driven Generative Models**: Trigger server-side sub-process model training isolated from the main event loop, utilizing `transformers` for custom ML generation tasks.
-- **The Intelligence Cubes Registry**: Access 15 pre-built, specialized intelligence agents handling everything from Career management to Legal analysis.
-- **Real-Time Log Streaming**: Live Training Monitor utilizing server-sent events (SSE) to push training and inference logs straight to the frontend terminal UI.
-- **Immersive 3D Visualization**: A specialized canvas built on React Three Fiber (`@react-three/fiber`) allowing dynamic 3D interactions with your AI Cubes.
-- **High-Performance Architecture**: FastAPI gateway routing asynchronous processes while maintaining a persistent SQLite memory database (`reflex.db`).
-- **Complete End-to-End Pipeline**: Train, Predict, and Download (`.zip`) packaged state-dict ML models seamlessly via API.
+You interact with a **registry of 15 pre-built Intelligence Cubes**, each a focused AI module for a specific domain (legal, finance, fitness, travel, and more). You can also prompt the platform to generate and train entirely custom models from scratch.
 
 ---
 
+## Core Features
 
-## 📸 Screenshots
+**Prompt-to-Model Generation**
+Describe the model you need in plain language. Reflex Cube triggers an isolated training subprocess, streams live logs to your terminal UI, and delivers a downloadable `.zip` of the trained model when complete.
 
-### 🟢 m1
-<img src="./m1.png" width="100%" />
+**LLM Fine-Tuning**
+Leverage Hugging Face Transformers and PyTorch to fine-tune language models. Expanded LoRA adapter support is on the roadmap.
 
-### 🟢 m2
-<img src="./m2.png" width="100%" />
+**15 Specialized Intelligence Cubes**
+A registry of ready-to-use AI agents, each tailored for a distinct task. Send a prompt, get a response — no setup required.
 
-### 🟢 m3
-<img src="./m3.png" width="100%" />
+**Immersive 3D Interface**
+Built on React Three Fiber, the frontend lets you visualize and interact with your deployed Cubes in a real-time 3D canvas.
 
-### 🟢 m4
-<img src="./m4.png" width="100%" />
+**Live Training Monitor**
+Server-Sent Events (SSE) stream real-time training logs straight to the frontend terminal — no polling, no refresh.
 
-### 🟢 m5
-<img src="./m5.png" width="100%" />
-
-### 🟢 m6
-<img src="./m6.png" width="100%" />
-
-## 🧠 The Cube Architecture Registry
-
-Each **Cube** is isolated, task-specific, and asynchronously managed by the FastAPI ThreadPool system to prevent event loop bottlenecks.
-
-The fully integrated **Reflex Cube Engine** currently supports **15 Specialized Cubes**:
-1. 🧑‍💼 **Talent Cube** — Evaluates resumes, extracts job criteria, and ranks candidates.
-2. 🔗 **Nexus Cube** — Acts as a continuous secondary brain, retrieving context and storing relational memory.
-3. ⚖️ **Legal Cube** — Analyzes contracts, extracts liability clauses, and reviews compliance.
-4. 🍳 **Chef Cube** — Custom culinary intelligence.
-5. 📈 **Alpha Cube** — Advanced strategic and financial heuristics.
-6. 💼 **Career Cube** — Career trajectory design and analysis.
-7. 🏷️ **Brand Cube** — Marketing and corporate identity reasoning.
-8. 🏋️ **FitPal Cube** — Fitness, health, and biometric AI logic.
-9. ✈️ **Travel Cube** — Dynamic itinerary generation and logistical mapping.
-10. 🛡️ **Sentinel Cube** — Security, logging, and infrastructure monitoring agent.
-11. 📓 **Ledger Cube** — Immutable data tracking and financial log parsing.
-12. 🔨 **Forge Cube** — Core foundational tool-building agent.
-13. 👁️ **Vision Cube** — Specialized in perception-based reasoning and image-text tasks.
-14. 💭 **Dream Cube** — Abstract generation and ideation agent.
-15. 🔍 **Lens Cube** — Deep-dive analytical parsing and summarization.
+**End-to-End Model Pipeline**
+Train → Predict → Download. Every model is packaged as a `.zip` (state dict + config) and available via API.
 
 ---
 
-## 🛠️ Complete Technology Stack
+## Intelligence Cube Registry
 
-### Frontend Architecture
-- **Framework**: React 18, Vite, TypeScript
-- **3D Engine**: Three.js, React Three Fiber, React Three Drei
-- **Styling**: TailwindCSS, Shadcn UI (Radix Primitives)
-- **Animation**: Framer Motion, GSAP (Lenis Smooth Scrolling)
-- **State & Data**: Valtio, TanStack React Query, Recharts
+Each Cube is an isolated, asynchronous AI agent managed by FastAPI's ThreadPool. Current roster:
 
-### Backend Architecture
-- **Gateway**: Python 3.10+, FastAPI, Uvicorn
-- **AI & NLP**: Hugging Face `transformers`, PyTorch
-- **Concurrency**: `subprocess.Popen` isolated worker pipelines for zero GIL/Threading lockups. Wait-free SSE streaming logs.
-- **Database**: SQLite (via SQLAlchemy) configured in local volume `/data`.
-
-### DevOps & Infrastructure
-- **Containerization**: Docker, Docker Compose
-- **Versioning**: Git & Git LFS (Large File System for `.pt` AI models)
+| # | Cube | Purpose |
+|---|------|---------|
+| 1 | 🧑‍💼 Talent Cube | Resume evaluation, candidate ranking |
+| 2 | 🔗 Nexus Cube | Contextual memory and relational retrieval |
+| 3 | ⚖️ Legal Cube | Contract analysis, liability extraction |
+| 4 | 🍳 Chef Cube | Culinary intelligence and recipe generation |
+| 5 | 📈 Alpha Cube | Financial strategy and heuristics |
+| 6 | 💼 Career Cube | Career trajectory design and analysis |
+| 7 | 🏷️ Brand Cube | Marketing and corporate identity reasoning |
+| 8 | 🏋️ FitPal Cube | Fitness, health, and biometric logic |
+| 9 | ✈️ Travel Cube | Itinerary generation and logistics |
+| 10 | 🛡️ Sentinel Cube | Security, logging, and infrastructure monitoring |
+| 11 | 📓 Ledger Cube | Financial log parsing and immutable tracking |
+| 12 | 🔨 Forge Cube | Core tool-building agent |
+| 13 | 👁️ Vision Cube | Perception-based reasoning and image-text tasks |
+| 14 | 💭 Dream Cube | Abstract generation and ideation |
+| 15 | 🔍 Lens Cube | Deep analytical parsing and summarization |
 
 ---
 
-## 📂 System Directory Structure
+## Tech Stack
 
-```text
-📦 ReflexCube-v2
- ┣ 📂 backend
- ┃ ┣ 📂 app
- ┃ ┃ ┣ 📂 cubes           # The 15 Intelligence Agents (registry.py)
- ┃ ┃ ┣ 📂 routes          # Specialized modular routers
- ┃ ┃ ┣ 📂 utils           # Core helpers
- ┃ ┃ ┣ 📜 api.py          # FastAPI Main Application
- ┃ ┃ ┣ 📜 trainer.py      # LLM / Transformers setup
- ┃ ┃ ┗ 📜 db.py / models.py
- ┃ ┣ 📜 train_worker.py   # Isolated CLI subprocess runner for AI training
- ┃ ┗ 📜 Dockerfile & requirements.txt
- ┣ 📂 frontend
- ┃ ┣ 📂 src
- ┃ ┃ ┣ 📂 canvas          # React Three Fiber 3D UI
- ┃ ┃ ┣ 📂 components      # Animated UI & Shadcn Registry
- ┃ ┃ ┣ 📂 cubes           # Frontend bindings for the intelligence agents
- ┃ ┃ ┣ 📂 visuals         # Charts, Recharts, and WebGL layers
- ┃ ┃ ┗ 📜 App.tsx / main.tsx
- ┃ ┗ 📜 package.json & vite.config.ts
- ┣ 📂 storage             # Output directory for exported .zip models and DB
- ┗ 📜 docker-compose.yml
+**Frontend**
+- React 18, Vite, TypeScript
+- Three.js, React Three Fiber, React Three Drei (3D engine)
+- TailwindCSS, Shadcn UI / Radix Primitives
+- Framer Motion, GSAP, Lenis (animation & scrolling)
+- Valtio, TanStack React Query, Recharts
+
+**Backend**
+- Python 3.10+, FastAPI, Uvicorn
+- Hugging Face `transformers`, PyTorch
+- `subprocess.Popen` isolated worker pipelines (zero GIL lockups)
+- SQLite via SQLAlchemy (`reflex.db`)
+
+**DevOps**
+- Docker, Docker Compose
+- Git LFS (for `.pt` model files)
+
+---
+
+## Project Structure
+
+```
+ReflexCube-v2/
+├── backend/
+│   ├── app/
+│   │   ├── cubes/          # 15 Intelligence Agents (registry.py)
+│   │   ├── routes/         # Modular API routers
+│   │   ├── utils/          # Core helpers
+│   │   ├── api.py          # FastAPI main application
+│   │   ├── trainer.py      # Transformers / LLM setup
+│   │   ├── db.py
+│   │   └── models.py
+│   ├── train_worker.py     # Isolated CLI subprocess for AI training
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── canvas/         # React Three Fiber 3D UI
+│   │   ├── components/     # Animated UI & Shadcn registry
+│   │   ├── cubes/          # Frontend bindings for Intelligence Agents
+│   │   ├── visuals/        # Charts, Recharts, WebGL layers
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── package.json
+│   └── vite.config.ts
+├── storage/                # Exported .zip models and DB output
+└── docker-compose.yml
 ```
 
 ---
 
-## 🔌 API Reference
-
-### Models & Training
-* `POST /api/models/create` — Submits a prompt to invoke a background subprocess (`train_worker.py`) that generates the model. Returns an ID.
-* `GET /api/training/status/{job_id}` — Polls the SQLite DB for model compilation progress.
-* `GET /api/logs/{job_id}` — Text/Event-Stream (SSE) endpoint to stream real-time JSONL stdout logs directly from the active subprocess worker.
-* `POST /api/models/{job_id}/predict` — Re-loads the compiled Hugging Face local pipeline to run inference.
-* `GET /api/models/download/{job_id}` — Dynamically compresses the trained `.pt` tensors & configs into a `.zip` file for immediate download.
-
-### Intelligence Cubes
-* `POST /api/cubes/run` — Executes a direct command to a specific Cube agent via the ThreadPool registry wrapper.
-  * *Payload*: `{ "cube_id": "legal", "input": "...text..." }`
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- **Python 3.10+**
-- **Node.js 18+**
-- **Docker** (optional but recommended)
 
-### 1. Backend Setup
+- Python 3.10+
+- Node.js 18+
+- Docker (optional, recommended)
 
-The backend leverages a dedicated internal environment for isolated AI processes.
+### 1. Backend
 
 ```bash
 cd backend
 python -m venv venv
 
-# Activate environment
-source venv/bin/activate        # Linux/macOS
-venv\Scripts\activate           # Windows
+# Activate
+source venv/bin/activate       # Linux / macOS
+venv\Scripts\activate          # Windows
 
-# Install libraries
 pip install -r requirements.txt
-
-# Run the FastAPI server
 uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
 ```
-> The API will be available at `http://localhost:8000`
 
-### 2. Frontend Setup
+API available at `http://localhost:8000`
 
-The frontend operates a rich 3D UI using Vite.
+### 2. Frontend
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-> The web interface will be available at `http://localhost:5173`
 
-### 3. Docker Deployment (Recommended)
+UI available at `http://localhost:5173`
 
-Containers abstract away local PyTorch configuration variances. 
+### 3. Docker (Recommended)
 
 ```bash
-# Build the backend environment with volume mounts
 docker-compose up --build -d
 ```
 
-### 📦 Git LFS & Model Caching
-Because this repository holds serialized `temp_fp32.pt` tensor models under `/backend/`, **Git Large File Storage (LFS)** is strictly required to clone properly.
+### 4. Git LFS (Required for Model Files)
+
+This repo uses Git LFS to track serialized `.pt` tensor models. Pull them after cloning:
 
 ```bash
 git lfs install
@@ -208,19 +171,58 @@ git lfs pull
 
 ---
 
-## 🔮 Roadmap
-- [ ] **Cube Marketplace** – User UI for hot-loading new agent logic.
-- [ ] **Custom Fine-Tuning** – Expanded parameters for LoRa adapters via the UI.
-- [ ] **Vector Database Expansion** – Upgrading Nexus Cube from SQLite to Milvus/Pinecone.
-- [ ] **Multi-Tenancy Auth** – JWT handling for multi-tenant state persistence.
-- [ ] **Cloud Deployment Templates** – Terraform templates for AWS EC2 / SageMaker orchestration.
+## API Reference
+
+### Model Training
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/models/create` | Submit a prompt to start background model training. Returns a job ID. |
+| `GET` | `/api/training/status/{job_id}` | Poll training progress from the SQLite DB. |
+| `GET` | `/api/logs/{job_id}` | SSE stream of real-time JSONL training logs from the active subprocess. |
+| `POST` | `/api/models/{job_id}/predict` | Run inference using the compiled local Hugging Face pipeline. |
+| `GET` | `/api/models/download/{job_id}` | Download trained model as a `.zip` (tensors + config). |
+
+### Intelligence Cubes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/cubes/run` | Execute a command against a specific Cube agent. |
+
+**Example payload:**
+```json
+{
+  "cube_id": "legal",
+  "input": "Review this contract for liability clauses..."
+}
+```
 
 ---
 
-## 🤝 Contributing
-Contributions are highly welcomed! Whether adding new 3D visualizations, expanding the Cube Registry, or optimizing inference time—feel free to open a PR or submit an issue.
+## Screenshots
 
-## 📄 License
-*License information pending.*
+| | |
+|--|--|
+| ![m1](./m1.png) | ![m2](./m2.png) |
+| ![m3](./m3.png) | ![m4](./m4.png) |
+| ![m5](./m5.png) | ![m6](./m6.png) |
 
-⭐ **Final Note:** Reflex Cube v2 merges cutting-edge full-stack React principles with raw headless machine learning deployment architectures. Built for researchers, startups, and data-scientists who need an immersive interface for rigorous data logic.
+---
+
+## Roadmap
+
+- [ ] **Cube Marketplace** — Hot-load new agent logic from the UI
+- [ ] **LoRA Fine-Tuning** — Expanded adapter parameters via the UI
+- [ ] **Vector DB Upgrade** — Nexus Cube migrating from SQLite to Milvus / Pinecone
+- [ ] **Multi-Tenancy Auth** — JWT handling for multi-tenant state persistence
+- [ ] **Cloud Templates** — Terraform templates for AWS EC2 / SageMaker
+
+---
+
+## Contributing
+
+Contributions are welcome — whether that's new 3D visualizations, additional Cubes, inference optimizations, or bug fixes. Open a PR or submit an issue.
+
+## License
+
+License information pending.
