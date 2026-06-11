@@ -11,3 +11,10 @@ python-multipart==0.0.6
 typing_extensions==4.8.0
 requests==2.31.0
 pandas==2.1.4
+apify-client==1.6.2
+e2b_code_interpreter==1.0.3
+python-dotenv==1.0.1
+bitsandbytes==0.43.1
+accelerate==0.30.0
+turbovec==0.7.0
+sentence-transformers==2.7.0

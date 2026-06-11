@@ -8,9 +8,8 @@ import { AnimatedRoutes } from "./components/AnimatedRoutes";
 
 import { Scene } from "./components/canvas/Scene";
 import { HeroBackground } from "./components/canvas/HeroBackground";
-import { SmoothScroll } from "./components/ui/SmoothScroll";
-import { CustomCursor } from "./components/ui/CustomCursor";
-import { FloatingNavbar } from "./components/ui/FloatingNavbar";
+import { AppLayout } from "./components/layout/AppLayout";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -23,10 +22,10 @@ const App: React.FC = () => (
         <HeroBackground />
       </Scene> */}
       <BrowserRouter>
-        <SmoothScroll />
-        <CustomCursor />
-        <FloatingNavbar />
-        <AnimatedRoutes />
+        <ScrollToTop />
+        <AppLayout>
+          <AnimatedRoutes />
+        </AppLayout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

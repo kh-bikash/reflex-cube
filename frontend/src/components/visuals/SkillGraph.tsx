@@ -38,17 +38,17 @@ export const SkillGraph = () => {
     }, []);
 
     return (
-        <section className="relative py-32 bg-midnight-900/50 backdrop-blur-sm z-10 overflow-hidden">
+        <section className="relative py-32 bg-background/50 backdrop-blur-sm z-10 overflow-hidden">
             <div className="container mx-auto px-6 mb-12 text-center">
-                <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">
-                    Integrated <span className="text-neon-purple">Workflow</span>
+                <h2 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
+                    Integrated <span className="text-primary">Workflow</span>
                 </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
+                <p className="text-muted-foreground max-w-2xl mx-auto">
                     Visualize your tech stack as a seamless node execution graph.
                 </p>
             </div>
 
-            <div ref={containerRef} className="relative w-full h-[600px] border-y border-white/5 bg-grid-white/5">
+            <div ref={containerRef} className="relative w-full h-[600px] border-y border-border">
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                     {connections.map((conn, i) => {
                         const start = skills.find((s) => s.id === conn.from)!;
@@ -60,7 +60,7 @@ export const SkillGraph = () => {
                         const y2 = (end.y / 100) * dimensions.h;
 
                         return (
-                            // @ts-ignore
+                            // @ts-expect-error framer-motion path
                             <motion.path
                                 key={i}
                                 initial={{ pathLength: 0, opacity: 0 }}
@@ -75,19 +75,19 @@ export const SkillGraph = () => {
                     })}
                     <defs>
                         <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#7b61ff" />
-                            <stop offset="100%" stopColor="#00f0ff" />
+                            <stop offset="0%" stopColor="#3B82F6" />
+                            <stop offset="100%" stopColor="#8B5CF6" />
                         </linearGradient>
                     </defs>
                 </svg>
 
                 {skills.map((skill, i) => (
-                    // @ts-ignore
+                    // @ts-expect-error framer-motion div
                     <motion.div
                         key={skill.id}
                         onMouseEnter={() => playHover()}
-                        className={`absolute transform -translate-x-1/2 -translate-y-1/2 px-6 py-3 rounded-xl border border-white/10 shadow-2xl backdrop-blur-md cursor-pointer hover:border-neon-cyan/50 transition-colors
-              ${skill.type === 'trigger' ? 'bg-neon-purple/10' : 'bg-midnight-800'}
+                        className={`absolute transform -translate-x-1/2 -translate-y-1/2 px-6 py-3 rounded-xl border border-border shadow-sm backdrop-blur-md cursor-pointer hover:border-primary/50 transition-colors
+              ${skill.type === 'trigger' ? 'bg-primary/10' : 'bg-card'}
             `}
                         style={{
                             left: `${skill.x}%`,
@@ -96,8 +96,8 @@ export const SkillGraph = () => {
                         whileHover={{ scale: 1.1 }}
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`w-3 h-3 rounded-full ${skill.type === 'trigger' ? 'bg-neon-purple' : 'bg-neon-cyan'}`} />
-                            <span className="text-white font-mono font-medium">{skill.label}</span>
+                            <div className={`w-3 h-3 rounded-full ${skill.type === 'trigger' ? 'bg-primary' : 'bg-secondary'}`} />
+                            <span className="text-foreground font-mono font-medium">{skill.label}</span>
                         </div>
                         {/* Fake connection points */}
                         <div className="absolute -right-1 top-1/2 w-2 h-2 bg-gray-500 rounded-full -translate-y-1/2" />

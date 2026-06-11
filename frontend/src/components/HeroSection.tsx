@@ -1,68 +1,72 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MagneticButton } from "./ui/MagneticButton";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
 
-  const titleWords = ["Reflex", "Cube"];
-  const subtitle = "Think it. Prompt it. Train it.";
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative w-full pt-24 pb-12 flex justify-center px-4 md:px-8">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="w-full max-w-[1400px] min-h-[65vh] rounded-[2rem] overflow-hidden relative flex flex-col justify-center"
+      >
+        {/* Actual Video Background */}
+        <div className="absolute inset-0 bg-[#0f0f0f] overflow-hidden">
+            <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-60"
+            >
+                <source src="/hero-bg.mp4" type="video/mp4" />
+            </video>
+        </div>
 
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-12"
-        >
-          <Sparkles className="w-4 h-4 text-neon-cyan" />
-          <span className="text-sm font-medium text-white tracking-widest uppercase">Next Gen AI Platform</span>
-        </motion.div>
+        {/* Content Overlay */}
+        <div className="absolute inset-0 flex flex-col justify-center p-12 md:p-24 z-20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mb-8 inline-block"
+            >
+                <span className="bg-white/10 backdrop-blur-md border border-white/10 text-white px-4 py-1.5 rounded-full text-sm font-medium tracking-wide">
+                    Introducing The Reflex Framework
+                </span>
+            </motion.div>
 
-        <h1 className="text-[12vw] leading-[0.85] font-black tracking-tighter text-white mb-8 mix-blend-difference">
-          {titleWords.map((word, i) => (
-            <span key={i} className="inline-block overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 1, delay: i * 0.1, ease: [0.76, 0, 0.24, 1] }}
-                className="inline-block"
-              >
-                {word}
-              </motion.span>
-              {i < titleWords.length - 1 && <span className="inline-block w-[2vw]">&nbsp;</span>}
-            </span>
-          ))}
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="text-xl md:text-3xl text-gray-400 mb-12 max-w-3xl mx-auto font-light"
-        >
-          {subtitle}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-        >
-          <MagneticButton onClick={() => navigate("/generate")}>
-            Start Building <ArrowRight className="inline-block ml-2 w-5 h-5" />
-          </MagneticButton>
-
-          <MagneticButton className="bg-transparent border border-white/20 hover:bg-white text-white hover:text-black" onClick={() => navigate("/generate")}>
-            View Documentation
-          </MagneticButton>
-        </motion.div>
-      </div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-tight max-w-5xl"
+            >
+              Architect intelligence.<br />
+              Build anything from a prompt.
+            </motion.h1>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mt-12 flex gap-4"
+            >
+               <button
+                    onClick={() => navigate("/generate")}
+                    className="px-8 py-3 bg-white text-black font-bold rounded-full transition-transform hover:scale-105"
+                >
+                    Build with Reflex
+                </button>
+            </motion.div>
+        </div>
+        
+        {/* Subtle Dark Gradient to fade video into black */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent z-10 pointer-events-none"></div>
+      </motion.div>
     </section>
   );
 };

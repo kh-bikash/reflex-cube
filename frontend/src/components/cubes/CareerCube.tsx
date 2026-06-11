@@ -111,19 +111,19 @@ export default function CareerCube() {
             {/* Header */}
             <div className="flex justify-between items-start mb-8 z-10">
                 <div>
-                    <h2 className="text-4xl font-display font-bold text-white mb-2 tracking-tight">
+                    <h2 className="text-4xl font-display font-bold text-foreground mb-2 tracking-tight">
                         <span className="text-blue-500">Career</span> Cube
                     </h2>
-                    <p className="text-white/60 max-w-md">
+                    <p className="text-muted-foreground max-w-md">
                         Upload your PDF resume. I will rewrite it to pass ATS filters and impress recruiters.
                     </p>
                 </div>
                 {result && (
                     <div className="flex flex-col items-end">
-                        <div className="text-6xl font-bold text-white mb-1">
-                            {result.score}<span className="text-2xl text-white/40">/100</span>
+                        <div className="text-6xl font-bold text-foreground mb-1">
+                            {result.score}<span className="text-2xl text-muted-foreground">/100</span>
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${result.score > 80 ? 'bg-green-500/20 text-green-400' :
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${result.score > 80 ? 'bg-green-500/20 text-success' :
                             result.score > 60 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
                             }`}>
                             ATS Score
@@ -142,7 +142,7 @@ export default function CareerCube() {
                     <div
                         onClick={() => fileInputRef.current?.click()}
                         className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group
-                            ${file ? 'border-blue-500 bg-blue-500/5' : 'border-white/10 hover:border-white/20 hover:bg-white/5'}
+                            ${file ? 'border-blue-500 bg-blue-500/5' : 'border-border hover:border-border hover:bg-muted/50'}
                         `}
                     >
                         <input
@@ -155,14 +155,14 @@ export default function CareerCube() {
                         {file ? (
                             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
                                 <FileText className="w-12 h-12 text-blue-400 mb-3 mx-auto" />
-                                <p className="text-white font-medium truncate max-w-[200px]">{file.name}</p>
-                                <p className="text-white/40 text-xs mt-1">Click to change</p>
+                                <p className="text-foreground font-medium truncate max-w-[200px]">{file.name}</p>
+                                <p className="text-muted-foreground text-xs mt-1">Click to change</p>
                             </motion.div>
                         ) : (
                             <>
-                                <Upload className="w-12 h-12 text-white/20 group-hover:text-white/40 mb-3 transition-colors" />
-                                <p className="text-white/60 font-medium">Drop PDF Resume</p>
-                                <p className="text-white/40 text-xs mt-1">or click to browse</p>
+                                <Upload className="w-12 h-12 text-foreground/20 group-hover:text-muted-foreground mb-3 transition-colors" />
+                                <p className="text-muted-foreground font-medium">Drop PDF Resume</p>
+                                <p className="text-muted-foreground text-xs mt-1">or click to browse</p>
                             </>
                         )}
                     </div>
@@ -172,11 +172,22 @@ export default function CareerCube() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             onClick={handleOptimize}
-                            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all"
+                            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-foreground rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all"
                         >
                             <Briefcase size={20} />
                             Optimize Resume
                         </motion.button>
+                    )}
+
+                    {error && (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm flex items-start gap-3 shadow-lg"
+                        >
+                            <AlertTriangle className="shrink-0 mt-0.5" size={16} />
+                            <p className="font-medium">{error}</p>
+                        </motion.div>
                     )}
 
                     {loading && (
@@ -188,8 +199,8 @@ export default function CareerCube() {
                             >
                                 <RefreshCw className="w-12 h-12 text-blue-500" />
                             </motion.div>
-                            <h3 className="text-white font-bold mt-4 text-lg">Analyzing...</h3>
-                            <p className="text-white/40 text-sm mt-2">Checking keywords, grammar, and impact.</p>
+                            <h3 className="text-foreground font-bold mt-4 text-lg">Analyzing...</h3>
+                            <p className="text-muted-foreground text-sm mt-2">Checking keywords, grammar, and impact.</p>
                         </div>
                     )}
 
@@ -201,8 +212,8 @@ export default function CareerCube() {
                             className="flex flex-col gap-4"
                         >
                             {/* Critique Cards */}
-                            <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-                                <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                            <div className="bg-muted/50 rounded-xl p-5 border border-border">
+                                <h4 className="text-foreground font-bold mb-4 flex items-center gap-2">
                                     <AlertTriangle size={16} className="text-yellow-500" />
                                     Critique
                                 </h4>
@@ -211,26 +222,26 @@ export default function CareerCube() {
                                     <div className="space-y-2">
                                         <p className="text-xs font-bold text-red-400 uppercase tracking-wider">Red Flags (Fixed)</p>
                                         {result.critique?.red_flags?.map((flag, i) => (
-                                            <div key={i} className="flex items-start gap-2 text-sm text-white/60">
+                                            <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                                                 <span className="text-red-500/50 mt-1">•</span>
                                                 {flag}
                                             </div>
-                                        )) || <p className="text-white/40 text-sm">None detected.</p>}
+                                        )) || <p className="text-muted-foreground text-sm">None detected.</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <p className="text-xs font-bold text-green-400 uppercase tracking-wider">Green Flags</p>
+                                        <p className="text-xs font-bold text-success uppercase tracking-wider">Green Flags</p>
                                         {result.critique?.green_flags?.map((flag, i) => (
-                                            <div key={i} className="flex items-start gap-2 text-sm text-white/60">
-                                                <span className="text-green-500/50 mt-1">•</span>
+                                            <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                                <span className="text-success/50 mt-1">•</span>
                                                 {flag}
                                             </div>
-                                        )) || <p className="text-white/40 text-sm">None detected.</p>}
+                                        )) || <p className="text-muted-foreground text-sm">None detected.</p>}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-                                <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                            <div className="bg-muted/50 rounded-xl p-5 border border-border">
+                                <h4 className="text-foreground font-bold mb-4 flex items-center gap-2">
                                     <Search size={16} className="text-blue-500" />
                                     Missing Keywords
                                 </h4>
@@ -239,7 +250,7 @@ export default function CareerCube() {
                                         <span key={i} className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-medium border border-blue-500/20">
                                             {kw}
                                         </span>
-                                    )) || <p className="text-white/40 text-sm">No keywords missing.</p>}
+                                    )) || <p className="text-muted-foreground text-sm">No keywords missing.</p>}
                                 </div>
                             </div>
                         </motion.div>
@@ -247,21 +258,21 @@ export default function CareerCube() {
                 </div>
 
                 {/* Right Panel: Preview */}
-                <div className="flex-1 bg-white/5 rounded-2xl border border-white/10 flex flex-col overflow-hidden relative">
+                <div className="flex-1 bg-muted/50 rounded-2xl border border-border flex flex-col overflow-hidden relative">
                     {result ? (
                         <>
                             {/* Toolbar */}
-                            <div className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-white/5 backdrop-blur-sm">
-                                <div className="flex gap-1 bg-black/20 p-1 rounded-lg">
+                            <div className="h-14 border-b border-border flex items-center justify-between px-6 bg-muted/50 backdrop-blur-sm">
+                                <div className="flex gap-1 bg-background/20 p-1 rounded-lg">
                                     <button
                                         onClick={() => setActiveTab('resume')}
-                                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'resume' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/60'}`}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'resume' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground'}`}
                                     >
                                         Resume
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('cover')}
-                                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'cover' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/60'}`}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'cover' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground'}`}
                                     >
                                         Cover Letter
                                     </button>
@@ -295,7 +306,7 @@ export default function CareerCube() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-white/20">
+                        <div className="flex-1 flex flex-col items-center justify-center text-foreground/20">
                             <Briefcase className="w-24 h-24 mb-6 opacity-20" />
                             <p className="text-lg font-medium">Upload a resume to begin</p>
                             <p className="text-sm mt-2 opacity-60">I will optimize it for ATS systems</p>

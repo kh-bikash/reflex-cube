@@ -66,9 +66,29 @@ export async function testModel(jobId: string, text: string) {
   return res.json();
 }
 
+export async function downloadPdf(title: string, markdown: string) {
+  const res = await fetch(`${BASE}/api/cubes/pdf`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, markdown })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  
+  // Download the blob
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title.replace(/\s+/g, '_')}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 
 export const api = {
-  post: async (endpoint: string, data: any) => {
+  post: async (endpoint: string, data: unknown) => {
     const res = await fetch(`${BASE}/api${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

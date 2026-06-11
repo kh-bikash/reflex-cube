@@ -11,16 +11,6 @@ class CubeRegistry:
         self._register_defaults()
 
     def _register_defaults(self):
-        # Helper to safely register cubes
-        def safe_register(CubeClass):
-            try:
-                cube_instance = CubeClass()
-                self.register(cube_instance.id, cube_instance)
-                print(f"[Registry] Successfully loaded {cube_instance.id}")
-            except Exception as e:
-                print(f"[Registry] FAILED to load {CubeClass.__name__}: {e}")
-                # traceback.print_exc()
-
         # Dynamic Import List
         cubes_to_load = [
             ("chef", "ChefCube"),
@@ -34,7 +24,9 @@ class CubeRegistry:
             ("travel", "TravelCube"),
             ("sentinel", "SentinelCube"),
             ("ledger", "LedgerCube"),
-            ("talent", "TalentCube")
+            ("talent", "TalentCube"),
+            ("forge", "ForgeCube"),
+            ("vision", "VisionCube")
         ]
 
         import importlib

@@ -85,38 +85,12 @@ class LegalCube(Cube):
             
             user_prompt = f"Analyze this contract:\n\n{truncated_text}"
             
-            # API Call
-            response = requests.post(
-                "https://text.pollinations.ai/",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    "model": "mistral",
-                    "seed": 42
-                },
-                timeout=90
-            )
-
-            if response.status_code == 200:
-                content = response.text
-                
-                # Robust JSON Extraction
-                def extract_json(text):
-                    if isinstance(text, dict): return text
-                    text = str(text).strip()
-                    if "```json" in text: text = text.split("```json")[1].split("```")[0]
-                    elif "```" in text: text = text.split("```")[1].split("```")[0]
-                    try: return json.loads(text)
-                    except: pass
-                    start, end = text.find("{"), text.rfind("}")
-                    if start != -1 and end != -1:
-                        try: return json.loads(text[start:end+1])
-                        except: pass
-                    return None
-                
+            # API Call via Router
+            from ..utils.ai_router import query_ai, extract_json
+            
+            content = query_ai(system_prompt, user_prompt, model_preference="mistral")
+            
+            if content:
                 data = extract_json(content)
                 if not data:
                     raise Exception("Failed to parse AI response.")
@@ -130,7 +104,7 @@ class LegalCube(Cube):
                     "data": data
                 }
             else:
-                 raise Exception(f"AI Provider Error: {response.status_code}")
+                 raise Exception("AI Provider Unavailable (All Routes Failed)")
 
         except Exception as e:
             print(f"[Legal Cube Error] {str(e)}")

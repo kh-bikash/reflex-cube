@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Crown, Palette, Type, Mic2, Download, Check, Copy } from 'lucide-react';
+import { api } from '../../lib/api';
 
 interface Color { hex: string; name: string; usage: string; }
 interface Fonts { header: string; body: string; }
@@ -26,12 +27,11 @@ export default function BrandCube() {
         if (!input) return;
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cube_id: 'brand', input: { brand_input: input, industry } })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'brand',
+                input: { brand_input: input, industry }
             });
-            const data = await res.json();
+            const data = res.data;
             if (data.status === 'success') setResult(data.data);
         } catch (e) {
             console.error(e);
@@ -41,14 +41,14 @@ export default function BrandCube() {
     };
 
     return (
-        <div className="h-full w-full bg-[#050505] text-white p-8 overflow-y-auto font-sans">
+        <div className="h-full w-full bg-[#050505] text-foreground p-8 overflow-y-auto font-sans">
             {/* Header */}
-            <header className="max-w-7xl mx-auto mb-12 flex justify-between items-end border-b border-white/10 pb-6">
+            <header className="max-w-7xl mx-auto mb-12 flex justify-between items-end border-b border-border pb-6">
                 <div>
                     <h1 className="text-4xl font-bold tracking-tighter mb-2 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
                         Brand Alchemist
                     </h1>
-                    <p className="text-white/40 font-mono text-sm">ARCHETYPE INTELLIGENCE SYSTEM v2.0</p>
+                    <p className="text-muted-foreground font-mono text-sm">ARCHETYPE INTELLIGENCE SYSTEM v2.0</p>
                 </div>
                 {!result && (
                     <div className="flex gap-4 items-center">
@@ -56,7 +56,7 @@ export default function BrandCube() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Describe your brand..."
-                            className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg w-80 focus:outline-none focus:border-white/30 transition-colors"
+                            className="bg-muted/50 border border-border px-4 py-2 rounded-lg w-80 focus:outline-none focus:border-white/30 transition-colors"
                             onKeyDown={(e) => e.key === 'Enter' && generate()}
                         />
                         <button
@@ -77,7 +77,7 @@ export default function BrandCube() {
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                         className="w-16 h-16 border-t-2 border-white rounded-full mb-8"
                     />
-                    <p className="font-mono text-white/50 animate-pulse">ANALYZING BRAND DNA...</p>
+                    <p className="font-mono text-foreground/50 animate-pulse">ANALYZING BRAND DNA...</p>
                 </div>
             )}
 
@@ -88,7 +88,7 @@ export default function BrandCube() {
                     className="max-w-7xl mx-auto grid grid-cols-12 gap-6"
                 >
                     {/* 1. Identity Card (Top Left) */}
-                    <div className="col-span-12 md:col-span-4 bg-[#0A0A0A] rounded-3xl p-8 border border-white/10 relative overflow-hidden group">
+                    <div className="col-span-12 md:col-span-4 bg-card rounded-3xl p-8 border border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Crown size={120} />
                         </div>
@@ -96,64 +96,64 @@ export default function BrandCube() {
                         <h2 className="text-5xl font-bold mb-6 tracking-tight">{result.archetype}</h2>
                         <div className="flex flex-wrap gap-2 mb-8">
                             {result.traits.map(t => (
-                                <span key={t} className="px-3 py-1 rounded-full border border-white/20 text-xs font-mono text-white/70">
+                                <span key={t} className="px-3 py-1 rounded-full border border-border text-xs font-mono text-foreground/70">
                                     {t.toUpperCase()}
                                 </span>
                             ))}
                         </div>
-                        <div className="bg-white/5 p-6 rounded-xl border-l-2 border-purple-500">
-                            <p className="text-xl italic font-serif leading-relaxed text-white/90">"{result.manifesto}"</p>
+                        <div className="bg-muted/50 p-6 rounded-xl border-l-2 border-purple-500">
+                            <p className="text-xl italic font-serif leading-relaxed text-foreground/90">"{result.manifesto}"</p>
                         </div>
                     </div>
 
                     {/* 2. Logo Studio (Top Middle) */}
-                    <div className="col-span-12 md:col-span-4 bg-[#0A0A0A] rounded-3xl p-8 border border-white/10 flex flex-col items-center justify-center relative">
-                        <p className="absolute top-6 left-6 font-mono text-xs text-white/30 flex items-center gap-2">
+                    <div className="col-span-12 md:col-span-4 bg-card rounded-3xl p-8 border border-border flex flex-col items-center justify-center relative">
+                        <p className="absolute top-6 left-6 font-mono text-xs text-foreground/30 flex items-center gap-2">
                             <Sparkles size={12} /> ARCHETYPE SEAL
                         </p>
                         <img
                             src={result.logo_url}
                             className="w-64 h-64 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
                         />
-                        <p className="mt-6 text-center text-white/40 text-xs max-w-[80%]">
-                            <strong className="block text-white/60 mb-1">Visual Direction:</strong>
+                        <p className="mt-6 text-center text-muted-foreground text-xs max-w-[80%]">
+                            <strong className="block text-muted-foreground mb-1">Visual Direction:</strong>
                             {result.logo_concept}
                         </p>
                     </div>
 
                     {/* 3. Typography (Top Right) */}
-                    <div className="col-span-12 md:col-span-4 bg-[#0A0A0A] rounded-3xl p-8 border border-white/10 flex flex-col justify-between">
+                    <div className="col-span-12 md:col-span-4 bg-card rounded-3xl p-8 border border-border flex flex-col justify-between">
                         <div className="flex items-center gap-2 mb-6">
-                            <Type className="text-white/30" />
-                            <span className="font-mono text-xs text-white/30">TYPOGRAPHY SYSTEM</span>
+                            <Type className="text-foreground/30" />
+                            <span className="font-mono text-xs text-foreground/30">TYPOGRAPHY SYSTEM</span>
                         </div>
                         <div className="space-y-8">
                             <div>
-                                <p className="text-white/40 text-xs mb-2">HEADER FONT</p>
+                                <p className="text-muted-foreground text-xs mb-2">HEADER FONT</p>
                                 <p className="text-4xl font-bold">{result.fonts.header}</p>
-                                <p className="text-sm text-white/50 mt-1">Aa Bb Cc Dd Ee 123</p>
+                                <p className="text-sm text-foreground/50 mt-1">Aa Bb Cc Dd Ee 123</p>
                             </div>
-                            <div className="h-px bg-white/10" />
+                            <div className="h-px bg-muted" />
                             <div>
-                                <p className="text-white/40 text-xs mb-2">BODY FONT</p>
+                                <p className="text-muted-foreground text-xs mb-2">BODY FONT</p>
                                 <p className="text-2xl font-light">{result.fonts.body}</p>
-                                <p className="text-sm text-white/50 mt-1">The quick brown fox jumps over the lazy dog.</p>
+                                <p className="text-sm text-foreground/50 mt-1">The quick brown fox jumps over the lazy dog.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* 4. Color Palette (Bottom Wide) */}
-                    <div className="col-span-12 md:col-span-8 bg-[#0A0A0A] rounded-3xl p-8 border border-white/10">
+                    <div className="col-span-12 md:col-span-8 bg-card rounded-3xl p-8 border border-border">
                         <div className="flex items-center gap-2 mb-6">
-                            <Palette className="text-white/30" />
-                            <span className="font-mono text-xs text-white/30">CHROMATIC IDENTITY</span>
+                            <Palette className="text-foreground/30" />
+                            <span className="font-mono text-xs text-foreground/30">CHROMATIC IDENTITY</span>
                         </div>
                         <div className="grid grid-cols-5 gap-4 h-40">
                             {result.colors.map((c, i) => (
                                 <div key={i} className="group relative h-full rounded-xl cursor-pointer hover:scale-105 transition-all duration-300" style={{ backgroundColor: c.hex }}>
-                                    <div className="absolute inset-x-0 bottom-0 p-3 bg-black/50 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl">
-                                        <p className="text-xs font-bold text-white">{c.name}</p>
-                                        <p className="text-[10px] font-mono text-white/70">{c.hex}</p>
+                                    <div className="absolute inset-x-0 bottom-0 p-3 bg-background/50 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl">
+                                        <p className="text-xs font-bold text-foreground">{c.name}</p>
+                                        <p className="text-[10px] font-mono text-foreground/70">{c.hex}</p>
                                     </div>
                                 </div>
                             ))}
@@ -161,11 +161,11 @@ export default function BrandCube() {
                     </div>
 
                     {/* 5. Voice & Tone (Bottom Right) */}
-                    <div className="col-span-12 md:col-span-4 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-3xl p-8 border border-white/10 flex flex-col justify-center relative overflow-hidden">
+                    <div className="col-span-12 md:col-span-4 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-3xl p-8 border border-border flex flex-col justify-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
                         <Mic2 className="mb-4 text-purple-400" />
                         <h3 className="text-xl font-bold mb-2">Brand Voice</h3>
-                        <p className="text-2xl text-white/80 font-light leading-relaxed">
+                        <p className="text-2xl text-foreground/80 font-light leading-relaxed">
                             "{result.voice}"
                         </p>
                         <div className="mt-6 flex gap-1 items-end h-8">

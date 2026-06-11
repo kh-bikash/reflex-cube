@@ -13,7 +13,7 @@ export const HeroBackground = () => {
                     size={4}
                     speed={0.4}
                     opacity={0.5}
-                    color="#00f0ff"
+                    color="#3B82F6"
                 />
             </Float>
             <Float speed={1} rotationIntensity={0.5} floatIntensity={0.5}>
@@ -23,7 +23,7 @@ export const HeroBackground = () => {
                     size={4}
                     speed={0.4}
                     opacity={0.3}
-                    color="#7b61ff"
+                    color="#8B5CF6"
                 />
             </Float>
         </group>

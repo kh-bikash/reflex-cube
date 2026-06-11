@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Upload, AlertTriangle, FileText, CheckCircle, Search, PieChart, ArrowRight, Database } from 'lucide-react';
+import { api } from '../../lib/api';
 
 interface Discrepancy {
     type: string;
@@ -22,6 +23,12 @@ interface AuditResult {
     red_flags: GhostVendor[];
 }
 
+interface LiveEvent {
+    status: string;
+    timestamp: string;
+    message: string;
+}
+
 export default function LedgerCube() {
     const [invoices, setInvoices] = useState("INV-001 | $5,000.00 | Acme Corp\nINV-002 | $1,250.50 | Shell Corp LLC\nINV-003 | $3,000.00 | Globex Inc");
     const [bankFeed, setBankFeed] = useState("2024-01-15 | DEBIT | $5,000.00 | ACH ACME CORP\n2024-01-16 | DEBIT | $3,000.00 | WIRE GLOBEX");
@@ -29,23 +36,19 @@ export default function LedgerCube() {
     const [result, setResult] = useState<AuditResult | null>(null);
 
     const [liveMode, setLiveMode] = useState(false);
-    const [liveEvents, setLiveEvents] = useState<any[]>([]);
+    const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
 
     // Live Audit Loop
     useEffect(() => {
-        let interval: any;
+        let interval: ReturnType<typeof setInterval> | undefined;
         if (liveMode) {
             interval = setInterval(async () => {
                 try {
-                    const res = await fetch('http://localhost:8000/api/cubes/run', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            cube_id: 'ledger',
-                            input: { simulation_mode: true }
-                        })
+                    const res = await api.post('/cubes/run', {
+                        cube_id: 'ledger',
+                        input: { simulation_mode: true }
                     });
-                    const data = await res.json();
+                    const data = res.data;
                     if (data.status === 'success') {
                         setLiveEvents(prev => [...data.data.events, ...prev].slice(0, 100)); // Keep last 100
                     }
@@ -57,15 +60,11 @@ export default function LedgerCube() {
 
     const handleDownload = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cube_id: 'ledger',
-                    input: { action: 'generate_report' } // Will work stateless now
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'ledger',
+                input: { action: 'generate_report' } // Will work stateless now
             });
-            const data = await res.json();
+            const data = res.data;
             if (data.status === 'success') {
                 const blob = new Blob([data.content], { type: data.mime });
                 const url = window.URL.createObjectURL(blob);
@@ -83,15 +82,11 @@ export default function LedgerCube() {
     const runAudit = async () => {
         setAnalyzing(true);
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cube_id: 'ledger',
-                    input: { invoices: invoices, bank_feed: bankFeed }
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'ledger',
+                input: { invoices: invoices, bank_feed: bankFeed }
             });
-            const data = await res.json();
+            const data = res.data;
             if (data.status === 'success') {
                 // Slight delay for effect
                 setTimeout(() => {
@@ -110,7 +105,7 @@ export default function LedgerCube() {
             {/* Header */}
             <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-8 shadow-sm z-10 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="bg-emerald-600 p-2 rounded text-white">
+                    <div className="bg-emerald-600 p-2 rounded text-foreground">
                         <DollarSign size={20} />
                     </div>
                     <div>
@@ -135,7 +130,7 @@ export default function LedgerCube() {
                         <button
                             onClick={runAudit}
                             disabled={analyzing}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold text-sm shadow-lg transition-all ${analyzing ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:scale-105'}`}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold text-sm shadow-lg transition-all ${analyzing ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-emerald-600 text-foreground hover:bg-emerald-700 hover:scale-105'}`}
                         >
                             {analyzing ? (
                                 <>
@@ -166,7 +161,7 @@ export default function LedgerCube() {
 
                 {/* LIVE FEED OVERLAY */}
                 {liveMode && (
-                    <div className="absolute inset-0 z-20 bg-slate-900 text-white flex flex-col p-8 font-mono">
+                    <div className="absolute inset-0 z-20 bg-background text-foreground flex flex-col p-8 font-mono">
                         <div className="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
                             <h2 className="text-xl text-emerald-400 font-bold flex items-center gap-2">
                                 <Search className="animate-pulse" /> LIVE TRANSACTION STREAM
@@ -298,7 +293,7 @@ export default function LedgerCube() {
                                             <div>
                                                 <h4 className="font-bold text-slate-800 text-sm mb-1">{disc.type}</h4>
                                                 <p className="text-sm text-slate-600 mb-2">{disc.details}</p>
-                                                <div className="bg-white/50 p-2 rounded text-xs font-mono text-slate-500 border border-orange-100/50">
+                                                <div className="bg-muted/500 p-2 rounded text-xs font-mono text-slate-500 border border-orange-100/50">
                                                     Missing in Bank Feed: "{disc.source}"
                                                 </div>
                                             </div>

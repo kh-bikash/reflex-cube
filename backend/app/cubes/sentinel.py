@@ -42,6 +42,17 @@ class SentinelCube(Cube):
     def description(self) -> str:
         return "Autonomous Security - Real-time Threat Detection."
 
+    def _analyze_payload(self, payload: str):
+        """Check a payload string against all known threat rules."""
+        for t_type, patterns in self.rules.items():
+            for p in patterns:
+                try:
+                    if re.search(p, payload, re.IGNORECASE):
+                        return t_type
+                except:
+                    continue  # Skip bad regex
+        return None
+
     def run(self, input_data: Any) -> Dict[str, Any]:
         sim_mode = input_data.get("simulation_mode", None)
         manual_payload = input_data.get("manual_payload", None)
@@ -95,18 +106,12 @@ class SentinelCube(Cube):
                 return {"status": "success", "filename": "soc2_report.json", "content": json.dumps(content, indent=2), "mime": "application/json"}
             
             elif "GDPR" in r_type:
-                # GDPR: Data Access Logs (CSV)
-                # Since we don't have persistent logs in this class instance except for sim, 
-                # we'll generate a header + simulation of what IS in memory or just a static 'No PII accessed' if empty.
-                # simpler: just return the current rules and metadata as a CSV for 'Configuration Audit'
                 lines = ["Timestamp,IP,Method,Path,Status,PII_Flag"]
-                # Mock some recent access for the download
                 for i in range(10):
                     lines.append(f"{datetime.now().isoformat()},192.168.1.{i},GET,/api/user/{i},200,TRUE")
                 return {"status": "success", "filename": "gdpr_access_log.csv", "content": "\n".join(lines), "mime": "text/csv"}
                 
             elif "ISO" in r_type:
-                # ISO 27001
                 lines = [
                     "ISO 27001 AUDIT CHECKLIST",
                     "=========================",
@@ -124,18 +129,10 @@ class SentinelCube(Cube):
                 return {"status": "success", "filename": "iso27001_audit.txt", "content": "\n".join(lines), "mime": "text/plain"}
             
             return {"status": "error", "message": "Unknown report type"}
-            for t_type, patterns in self.rules.items():
-                for p in patterns:
-                    try:
-                        if re.search(p, payload, re.IGNORECASE):
-                            return t_type
-                    except:
-                        continue # Skip bad regex
-            return None
 
         # --- MODE 1: Manual Real-Time Analysis with AI ---
         if manual_payload:
-            threat_type = analyze_payload(manual_payload)
+            threat_type = self._analyze_payload(manual_payload)
             timestamp = datetime.now().strftime("%H:%M:%S")
             ip = "127.0.0.1" 
             
@@ -151,26 +148,15 @@ class SentinelCube(Cube):
                 )
                 user_prompt = f"Payload: {manual_payload}"
                 
-                ai_resp = requests.post(
-                     "https://text.pollinations.ai/",
-                     headers={"Content-Type": "application/json"},
-                     json={
-                        "messages": [
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt}
-                        ],
-                        "model": "mistral",
-                        "seed": 42
-                     },
-                     timeout=5
-                )
-                if ai_resp.status_code == 200:
-                    explanation = ai_resp.text.strip()
+                from ..utils.ai_router import query_ai
+                
+                ai_resp = query_ai(system_prompt, user_prompt, model_preference="mistral", engine_type="code")
+                if ai_resp:
+                    explanation = ai_resp.strip()
             except:
                 pass 
 
             if threat_type:
-                # Increment match count for metadata if possible, but for now simple return
                 return {
                      "status": "success",
                      "data": {
@@ -213,8 +199,6 @@ class SentinelCube(Cube):
                 ip = rand_ip()
                 
                 if sim_mode == 'attack' and random.random() > 0.4:
-                    # Malicious Payload
-                    # Pick a random rule type
                     attack_type = random.choice(list(self.rules.keys()))
                     
                     if attack_type == "SQL Injection":
@@ -224,7 +208,6 @@ class SentinelCube(Cube):
                     elif attack_type == "RCE":
                         payload = f"GET /shell?cmd=| bash"
                     else:
-                         # Fallback for custom rules, just generate a generic payload that matches nothing specific visually but we label it
                          payload = f"POST /upload (Malicious Signature: {attack_type})"
                     
                     log_line = f"[{timestamp}] [WARN] {ip} - {payload}"
@@ -238,7 +221,6 @@ class SentinelCube(Cube):
                         "action": "BLOCKED"
                     })
                 else:
-                    # Normal Traffic
                     path = random.choice(["/home", "/about", "/contact", "/api/v1/status", "/login"])
                     method = random.choice(["GET", "POST"])
                     status = random.choice([200, 200, 200, 304, 404])

@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, FileText, Users, CheckCircle, XCircle, AlertTriangle, Brain, Search, Award, Upload, Zap, Database, ArrowRight } from 'lucide-react';
+import { api } from '../../lib/api';
+
+interface Candidate {
+    name?: string;
+    score: number;
+    decision: 'HIRE' | 'REJECT' | 'MAYBE';
+    reasoning: string;
+}
 
 export default function TalentCube() {
     // Mode: 'setup' | 'pipeline'
@@ -9,25 +17,21 @@ export default function TalentCube() {
     const [loading, setLoading] = useState(false);
 
     // "Trained" Model State
-    const [roleModel, setRoleModel] = useState<any>(null);
+    const [roleModel, setRoleModel] = useState<unknown>(null);
 
     // Candidates
     const [candidatesInput, setCandidatesInput] = useState('');
-    const [pipeline, setPipeline] = useState<any[]>([]);
+    const [pipeline, setPipeline] = useState<Candidate[]>([]);
 
     const handleTrainModel = async () => {
         if (!jdData.trim()) return;
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cube_id: 'talent',
-                    input: { mode: 'train_role', job_description: jdData }
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'talent',
+                input: { mode: 'train_role', job_description: jdData }
             });
-            const json = await res.json();
+            const json = res.data;
             if (json.status === 'success') {
                 setRoleModel(json.data);
                 setView('pipeline');
@@ -47,19 +51,15 @@ export default function TalentCube() {
         const resumes = candidatesInput.split(/\n\s*\n/).filter(x => x.length > 50);
 
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cube_id: 'talent',
-                    input: {
-                        mode: 'batch_screen',
-                        criteria: roleModel,
-                        candidates: resumes
-                    }
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'talent',
+                input: {
+                    mode: 'batch_screen',
+                    criteria: roleModel,
+                    candidates: resumes
+                }
             });
-            const json = await res.json();
+            const json = res.data;
             if (json.status === 'success') {
                 setPipeline(prev => [...prev, ...json.data.results]);
                 setCandidatesInput(''); // clear input
@@ -76,7 +76,7 @@ export default function TalentCube() {
             {/* Header */}
             <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <div className="bg-indigo-600 p-2 rounded-lg text-white shadow-lg shadow-indigo-600/20">
+                    <div className="bg-indigo-600 p-2 rounded-lg text-foreground shadow-lg shadow-indigo-600/20">
                         <Users size={20} />
                     </div>
                     <div>
@@ -127,7 +127,7 @@ export default function TalentCube() {
                             <button
                                 onClick={handleTrainModel}
                                 disabled={loading || !jdData}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-foreground font-bold py-3 rounded-lg shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
                             >
                                 {loading ? <Zap className="animate-spin" /> : <Zap />}
                                 {loading ? 'TRAINING MODEL...' : 'COMPILE ROLE MODEL'}
@@ -171,7 +171,7 @@ export default function TalentCube() {
                                 <button
                                     onClick={handleBatchScreen}
                                     disabled={loading || !candidatesInput}
-                                    className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
+                                    className="w-full bg-slate-800 hover:bg-background text-foreground font-bold py-3 rounded-lg flex items-center justify-center gap-2"
                                 >
                                     {loading ? 'PROCESSING...' : `PROCESS BATCH`}
                                 </button>
@@ -196,7 +196,7 @@ export default function TalentCube() {
                                                 className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 flex items-center gap-6 hover:shadow-md transition-shadow"
                                             >
                                                 <div
-                                                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shrink-0 ${p.score > 80 ? 'bg-green-500' : p.score > 50 ? 'bg-amber-400' : 'bg-red-500'
+                                                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-foreground shrink-0 ${p.score > 80 ? 'bg-green-500' : p.score > 50 ? 'bg-amber-400' : 'bg-red-500'
                                                         }`}
                                                 >
                                                     {p.score}

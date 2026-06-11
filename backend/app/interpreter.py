@@ -86,16 +86,18 @@ class PromptInterpreter:
         # Smart Fallbacks based on domain keywords
         p = prompt.lower()
         if "bank" in p or "finance" in p or "money" in p: return "banking77"
-        if "spam" in p or "junk" in p: return "sms_spam"
+        if "spam" in p or "junk" in p: return "SetFit/enron_spam" # Using enron_spam as sms_spam has "**" glob issues
         if "medic" in p or "health" in p: return "pubmed"
         if "legal" in p or "law" in p: return "lex_glue"
+        if "sentiment" in p or "review" in p: return "imdb"
+        if "news" in p: return "ag_news"
         
         # Robust defaults if search yields nothing (e.g. obscure topic)
         defaults = {
             "text-classification": "ag_news",
-            "summarization": "xsum",
-            "text-generation": "wikitext",
-            "translation": "wmt16",
+            "summarization": "cnn_dailymail,3.0.0",
+            "text-generation": "wikitext,wikitext-2-raw-v1",
+            "translation": "opus_books,en-fr",
             "token-classification": "conll2003",
             "question-answering": "squad",
         }

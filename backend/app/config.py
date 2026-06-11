@@ -7,6 +7,7 @@ HF_HOME = Path(r"D:\ReflexCubeData\huggingface")
 HF_HOME.mkdir(parents=True, exist_ok=True)
 os.environ["HF_HOME"] = str(HF_HOME)
 os.environ["HF_DATASETS_CACHE"] = str(HF_HOME / "datasets")
+os.environ["TRANSFORMERS_CACHE"] = str(HF_HOME / "models")
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/reflex.db")

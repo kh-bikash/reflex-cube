@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, ShieldAlert, Activity, Lock, Search, AlertTriangle, CheckCircle, Server, FileText, Settings, Download, Database } from 'lucide-react';
+import { api } from '../../lib/api';
 
 interface Threat {
     id: string;
@@ -23,7 +24,7 @@ interface LogEntry {
 
 interface SentinelResult {
     logs: string[];
-    threats: any[];
+    threats: Threat[];
     system_status: string;
     active_firewall_rules: number;
 }
@@ -34,7 +35,7 @@ const parseLog = (raw: string): LogEntry => {
     return {
         id: Math.random().toString(),
         timestamp: parts[1],
-        level: parts[2] as any,
+        level: parts[2] as 'INFO' | 'WARN' | 'ERROR',
         source: parts[3],
         message: parts[4]
     };
@@ -81,26 +82,26 @@ export default function SentinelCube() {
             <div className="flex-1 flex flex-col border-r border-slate-800 p-6 gap-6 overflow-hidden z-10">
                 {/* Key Metrics Row */}
                 <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg shadow-sm">
+                    <div className="bg-background border border-slate-800 p-4 rounded-lg shadow-sm">
                         <div className="text-slate-500 text-xs font-bold uppercase mb-1 flex items-center gap-2"><Activity size={12} /> Req / Sec</div>
-                        <div className="text-2xl font-semibold text-white">{stats.reqPerSec.toLocaleString()}</div>
+                        <div className="text-2xl font-semibold text-foreground">{stats.reqPerSec.toLocaleString()}</div>
                     </div>
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg shadow-sm">
+                    <div className="bg-background border border-slate-800 p-4 rounded-lg shadow-sm">
                         <div className="text-slate-500 text-xs font-bold uppercase mb-1 flex items-center gap-2"><Lock size={12} /> Threats Blocked</div>
-                        <div className="text-2xl font-semibold text-white">{stats.blocked.toLocaleString()}</div>
+                        <div className="text-2xl font-semibold text-foreground">{stats.blocked.toLocaleString()}</div>
                     </div>
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg shadow-sm">
+                    <div className="bg-background border border-slate-800 p-4 rounded-lg shadow-sm">
                         <div className="text-slate-500 text-xs font-bold uppercase mb-1 flex items-center gap-2"><Server size={12} /> Active Nodes</div>
-                        <div className="text-2xl font-semibold text-white">42</div>
+                        <div className="text-2xl font-semibold text-foreground">42</div>
                     </div>
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg shadow-sm">
+                    <div className="bg-background border border-slate-800 p-4 rounded-lg shadow-sm">
                         <div className="text-slate-500 text-xs font-bold uppercase mb-1 flex items-center gap-2"><Search size={12} /> Log Volume</div>
-                        <div className="text-2xl font-semibold text-white">1.2 TB</div>
+                        <div className="text-2xl font-semibold text-foreground">1.2 TB</div>
                     </div>
                 </div>
 
                 {/* Live Log Table */}
-                <div className="flex-1 bg-slate-900 border border-slate-800 rounded-lg overflow-hidden flex flex-col shadow-lg">
+                <div className="flex-1 bg-background border border-slate-800 rounded-lg overflow-hidden flex flex-col shadow-lg">
                     <div className="h-10 border-b border-slate-800 bg-slate-800/50 flex items-center px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
                         <div className="w-24">Timestamp</div>
                         <div className="w-20">Level</div>
@@ -131,8 +132,8 @@ export default function SentinelCube() {
             </div>
 
             {/* Right Panel: Incident Feed */}
-            <div className="w-96 bg-slate-900 border-l border-slate-800 flex flex-col z-10">
-                <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+            <div className="w-96 bg-background border-l border-slate-800 flex flex-col z-10">
+                <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-background">
                     <h3 className="font-semibold text-slate-200 flex items-center gap-2">
                         <ShieldAlert size={16} className="text-red-500" /> Security Incidents
                     </h3>
@@ -144,7 +145,7 @@ export default function SentinelCube() {
                 </div>
 
                 {/* Manual Penetration Test Console */}
-                <div className="p-4 border-b border-slate-800 bg-slate-900/50">
+                <div className="p-4 border-b border-slate-800 bg-background/50">
                     <div className="text-[10px] uppercase font-bold text-slate-500 mb-2 flex items-center gap-1">
                         <Activity size={10} /> Live Penetration Test
                     </div>
@@ -160,14 +161,10 @@ export default function SentinelCube() {
                                     if (!payload) return;
 
                                     // Send Manual Check
-                                    fetch('http://localhost:8000/api/cubes/run', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            cube_id: 'sentinel',
-                                            input: { manual_payload: payload }
-                                        })
-                                    }).then(res => res.json()).then(data => {
+                                    api.post('/cubes/run', {
+                                        cube_id: 'sentinel',
+                                        input: { manual_payload: payload }
+                                    }).then(res => res.data).then(data => {
                                         if (data.status === 'success') {
                                             const resData = data.data as SentinelResult;
                                             const newLogs = resData.logs.map(parseLog);
@@ -175,7 +172,7 @@ export default function SentinelCube() {
 
                                             // Handle manual threat visual
                                             if (resData.threats.length > 0) {
-                                                const newThreats = resData.threats.map((t: any) => ({
+                                                const newThreats = resData.threats.map((t: Omit<Threat, 'id'>) => ({
                                                     id: Math.random().toString(),
                                                     timestamp: t.timestamp,
                                                     ip: t.ip,
@@ -263,10 +260,10 @@ export default function SentinelCube() {
     const IncidentsView = () => (
         <div className="flex-1 bg-slate-950 p-8 overflow-y-auto">
             <div className="max-w-6xl mx-auto">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
                     <ShieldAlert className="text-red-500" /> Incident History (Last 30 Days)
                 </h2>
-                <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+                <div className="bg-background border border-slate-800 rounded-lg overflow-hidden">
                     <table className="w-full text-left text-sm text-slate-400">
                         <thead className="bg-slate-800 text-slate-200 uppercase text-xs font-bold">
                             <tr>
@@ -279,7 +276,7 @@ export default function SentinelCube() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800">
-                            {threats.map((t: any) => (
+                            {threats.map((t: Threat) => (
                                 <tr key={t.id} className="hover:bg-slate-800/50">
                                     <td className="px-6 py-4 font-mono">{t.timestamp}</td>
                                     <td className="px-6 py-4">
@@ -287,7 +284,7 @@ export default function SentinelCube() {
                                             {t.severity}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-white font-medium">{t.type}</td>
+                                    <td className="px-6 py-4 text-foreground font-medium">{t.type}</td>
                                     <td className="px-6 py-4 font-mono">{t.ip}</td>
                                     <td className="px-6 py-4 text-emerald-400 font-bold">{t.action}</td>
                                     <td className="px-6 py-4 max-w-xs truncate font-mono text-slate-500" title={t.payload}>{t.payload}</td>
@@ -300,42 +297,45 @@ export default function SentinelCube() {
         </div>
     );
 
+    interface SentinelRule {
+        id: string;
+        name: string;
+        desc: string;
+        pattern?: string;
+        matches: number;
+        status: 'Active' | 'Inactive';
+    }
+
     const [showRuleModal, setShowRuleModal] = useState(false);
     const [newRule, setNewRule] = useState({ name: '', pattern: '', desc: '' });
-    const [rulesList, setRulesList] = useState<any[]>([]);
+    const [rulesList, setRulesList] = useState<SentinelRule[]>([]);
 
     useEffect(() => {
         // Fetch initial rules
-        fetch('http://localhost:8000/api/cubes/run', {
-            method: 'POST',
-            body: JSON.stringify({ cube_id: 'sentinel', input: { action: 'get_rules' } })
-        }).then(res => res.json()).then(data => {
+        api.post('/cubes/run', { cube_id: 'sentinel', input: { action: 'get_rules' } })
+        .then(res => res.data).then(data => {
             if (data.status === 'success') setRulesList(data.data);
         });
     }, []);
 
     // Re-enable polling for SIMULATION MODE ONLY
     useEffect(() => {
-        let interval: any;
+        let interval: ReturnType<typeof setInterval> | undefined;
         if (running && mode === 'attack') {
             interval = setInterval(async () => {
                 try {
-                    const res = await fetch('http://localhost:8000/api/cubes/run', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            cube_id: 'sentinel',
-                            input: { simulation_mode: 'attack' }
-                        })
+                    const res = await api.post('/cubes/run', {
+                        cube_id: 'sentinel',
+                        input: { simulation_mode: 'attack' }
                     });
-                    const data = await res.json();
+                    const data = res.data;
                     if (data.status === 'success') {
                         const resData = data.data as SentinelResult;
                         const newLogs = resData.logs.map(parseLog);
                         setLogs(prev => [...prev.slice(-100), ...newLogs]);
 
                         if (resData.threats.length > 0) {
-                            const newThreats = resData.threats.map((t: any) => ({
+                            const newThreats = resData.threats.map((t: Omit<Threat, 'id'>) => ({
                                 id: Math.random().toString(),
                                 timestamp: t.timestamp,
                                 ip: t.ip,
@@ -356,36 +356,28 @@ export default function SentinelCube() {
 
     const handleAddRule = async () => {
         if (!newRule.name || !newRule.pattern) return;
-        await fetch('http://localhost:8000/api/cubes/run', {
-            method: 'POST',
-            body: JSON.stringify({
-                cube_id: 'sentinel',
-                input: { action: 'add_rule', rule: newRule }
-            })
+        await api.post('/cubes/run', {
+            cube_id: 'sentinel',
+            input: { action: 'add_rule', rule: newRule }
         });
         // Refresh rules
-        const res = await fetch('http://localhost:8000/api/cubes/run', {
-            method: 'POST',
-            body: JSON.stringify({ cube_id: 'sentinel', input: { action: 'get_rules' } })
-        });
-        const data = await res.json();
+        const res = await api.post('/cubes/run', { cube_id: 'sentinel', input: { action: 'get_rules' } });
+        const data = res.data;
         setRulesList(data.data);
         setShowRuleModal(false);
         setNewRule({ name: '', pattern: '', desc: '' });
     };
 
-    // ... (Views)
-
     const RulesEngineView = () => (
         <div className="flex-1 bg-slate-950 p-8 overflow-y-auto h-full relative">
             {showRuleModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-slate-900 border border-slate-700 p-6 rounded-lg w-96 shadow-2xl">
-                        <h3 className="text-xl font-bold text-white mb-4">Add WAF Rule</h3>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                    <div className="bg-background border border-slate-700 p-6 rounded-lg w-96 shadow-2xl">
+                        <h3 className="text-xl font-bold text-foreground mb-4">Add WAF Rule</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs text-slate-400 mb-1">Rule Name</label>
-                                <input className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white"
+                                <input className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-foreground"
                                     value={newRule.name} onChange={e => setNewRule({ ...newRule, name: e.target.value })} placeholder="e.g. Block Admin Login" />
                             </div>
                             <div>
@@ -395,13 +387,13 @@ export default function SentinelCube() {
                             </div>
                             <div>
                                 <label className="block text-xs text-slate-400 mb-1">Description</label>
-                                <input className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white"
+                                <input className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-foreground"
                                     value={newRule.desc} onChange={e => setNewRule({ ...newRule, desc: e.target.value })} />
                             </div>
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
-                            <button onClick={() => setShowRuleModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
-                            <button onClick={handleAddRule} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm font-bold">Add Rule</button>
+                            <button onClick={() => setShowRuleModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-foreground">Cancel</button>
+                            <button onClick={handleAddRule} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-foreground rounded text-sm font-bold">Add Rule</button>
                         </div>
                     </div>
                 </div>
@@ -409,28 +401,28 @@ export default function SentinelCube() {
 
             <div className="max-w-6xl mx-auto pb-20">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
                         <Settings className="text-indigo-500" /> Rules Engine & Heuristics
                     </h2>
-                    <button onClick={() => setShowRuleModal(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2">
+                    <button onClick={() => setShowRuleModal(true)} className="bg-indigo-600 hover:bg-indigo-500 text-foreground px-4 py-2 rounded text-sm font-bold flex items-center gap-2">
                         + Add New WAF Rule
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
                     {rulesList.length === 0 && <p className="text-slate-500">Loading rules...</p>}
-                    {rulesList.map((rule: any) => (
-                        <div key={rule.id} className="bg-slate-900 border border-slate-800 p-6 rounded-lg flex items-center justify-between">
+                    {rulesList.map((rule: SentinelRule) => (
+                        <div key={rule.id} className="bg-background border border-slate-800 p-6 rounded-lg flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-1">
-                                    <h3 className="font-bold text-lg text-white">{rule.name}</h3>
+                                    <h3 className="font-bold text-lg text-foreground">{rule.name}</h3>
                                     <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded">{rule.id}</span>
                                 </div>
                                 <p className="text-slate-400 text-sm">{rule.desc}</p>
                             </div>
                             <div className="flex items-center gap-8">
                                 <div className="text-right">
-                                    <div className="text-xl font-bold text-white">{rule.matches.toLocaleString()}</div>
+                                    <div className="text-xl font-bold text-foreground">{rule.matches.toLocaleString()}</div>
                                     <div className="text-xs text-slate-500 uppercase">Hits</div>
                                 </div>
                                 <div className={`px-3 py-1 rounded-full text-xs font-bold border ${rule.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700 text-slate-400 border-slate-600'}`}>
@@ -444,36 +436,13 @@ export default function SentinelCube() {
         </div>
     );
 
-    // ...
-
-    // HEADER BUTTONS RESTORED
-    // Inside return header...
-    {
-        activeTab === 'dashboard' && (
-            <div className="flex items-center gap-2">
-                <button
-                    onClick={() => {
-                        setMode(mode === 'normal' ? 'attack' : 'normal');
-                        setRunning(true);
-                    }}
-                    className={`text-xs px-3 py-1.5 rounded transition-colors ${mode === 'attack' ? 'bg-red-500/20 text-red-400 border border-red-500/50' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
-                >
-                    {mode === 'attack' ? 'STOP DEMO SIMULATION' : 'DEMO: SIMULATE ATTACK'}
-                </button>
-            </div>
-        )
-    }
-
     const handleDownload = async (reportType: string) => {
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                body: JSON.stringify({
-                    cube_id: 'sentinel',
-                    input: { action: 'generate_report', report_type: reportType }
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'sentinel',
+                input: { action: 'generate_report', report_type: reportType }
             });
-            const data = await res.json();
+            const data = res.data;
 
             if (data.status === 'success') {
                 // Trigger Browser Download
@@ -499,7 +468,7 @@ export default function SentinelCube() {
         <div className="flex-1 bg-slate-950 p-8 overflow-y-auto">
             <div className="max-w-4xl mx-auto text-center py-12">
                 <Shield className="w-24 h-24 text-indigo-500 mx-auto mb-6 opacity-20" />
-                <h2 className="text-3xl font-bold text-white mb-4">Enterprise Compliance Center</h2>
+                <h2 className="text-3xl font-bold text-foreground mb-4">Enterprise Compliance Center</h2>
                 <p className="text-slate-400 mb-12 max-w-lg mx-auto">
                     Generate audit-ready reports for SOC2, ISO 27001, and GDPR compliance verification.
                     Sentinel logs are immutable and cryptographically signed.
@@ -511,7 +480,7 @@ export default function SentinelCube() {
                         { name: "GDPR Data Access Log", fmt: "CSV", size: "LIVE", type: "GDPR" },
                         { name: "ISO 27001 Threat Audit", fmt: "TXT", size: "LIVE", type: "ISO" },
                     ].map((file, i) => (
-                        <div key={i} className="bg-slate-900 border border-slate-800 p-6 rounded-lg text-left hover:border-indigo-500/50 transition-colors group cursor-pointer">
+                        <div key={i} className="bg-background border border-slate-800 p-6 rounded-lg text-left hover:border-indigo-500/50 transition-colors group cursor-pointer">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="bg-slate-800 p-3 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
                                     <FileText className="text-indigo-400" size={24} />
@@ -522,7 +491,7 @@ export default function SentinelCube() {
                             <p className="text-sm text-slate-500 mb-4">{file.size}</p>
                             <button
                                 onClick={() => handleDownload(file.type)}
-                                className="w-full py-2 rounded border border-slate-700 text-slate-300 text-sm font-bold hover:bg-slate-800 hover:text-white flex items-center justify-center gap-2"
+                                className="w-full py-2 rounded border border-slate-700 text-slate-300 text-sm font-bold hover:bg-slate-800 hover:text-foreground flex items-center justify-center gap-2"
                             >
                                 <Download size={14} /> Download
                             </button>
@@ -536,35 +505,35 @@ export default function SentinelCube() {
     return (
         <div className="h-full w-full bg-slate-950 text-slate-200 font-sans overflow-hidden flex flex-col">
             {/* Top Navigation Bar - Enterprise Style */}
-            <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-6 z-20">
+            <header className="h-16 border-b border-slate-800 bg-background/50 backdrop-blur-md flex items-center justify-between px-6 z-20">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 text-indigo-400">
                         <Shield className="w-6 h-6" />
-                        <span className="font-bold tracking-tight text-white">SENTINEL</span>
+                        <span className="font-bold tracking-tight text-foreground">SENTINEL</span>
                     </div>
                     <div className="h-6 w-px bg-slate-700 mx-2" />
                     <nav className="flex gap-6 text-sm font-medium text-slate-400">
                         <button
                             onClick={() => setActiveTab('dashboard')}
-                            className={`${activeTab === 'dashboard' ? 'text-white border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-white transition-colors pb-[23px]'}`}
+                            className={`${activeTab === 'dashboard' ? 'text-foreground border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-foreground transition-colors pb-[23px]'}`}
                         >
                             Dashboard
                         </button>
                         <button
                             onClick={() => setActiveTab('incidents')}
-                            className={`${activeTab === 'incidents' ? 'text-white border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-white transition-colors pb-[23px]'}`}
+                            className={`${activeTab === 'incidents' ? 'text-foreground border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-foreground transition-colors pb-[23px]'}`}
                         >
                             Incidents
                         </button>
                         <button
                             onClick={() => setActiveTab('rules')}
-                            className={`${activeTab === 'rules' ? 'text-white border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-white transition-colors pb-[23px]'}`}
+                            className={`${activeTab === 'rules' ? 'text-foreground border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-foreground transition-colors pb-[23px]'}`}
                         >
                             Rules Engine
                         </button>
                         <button
                             onClick={() => setActiveTab('compliance')}
-                            className={`${activeTab === 'compliance' ? 'text-white border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-white transition-colors pb-[23px]'}`}
+                            className={`${activeTab === 'compliance' ? 'text-foreground border-b-2 border-indigo-500 pb-[21px]' : 'hover:text-foreground transition-colors pb-[23px]'}`}
                         >
                             Compliance
                         </button>

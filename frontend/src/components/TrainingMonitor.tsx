@@ -1,6 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { openJobSSE } from "../lib/api";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface LogEntry {
   step: number;
@@ -20,7 +40,9 @@ const TrainingMonitor = ({ jobId }: { jobId: string }) => {
       try {
         const entry = JSON.parse(e.data);
         if (entry.loss) setLogs((prev) => [...prev, entry]);
-      } catch { }
+      } catch (err) {
+        console.warn("Failed to parse log message", err);
+      }
     };
 
     eventSrc.onerror = (e) => {

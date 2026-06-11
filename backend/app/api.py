@@ -77,6 +77,14 @@ def startup_event():
     db.commit()
     db.close()
 
+    # Pre-load Brain to show status logs on startup (and catch errors early)
+    try:
+        safe_print("[Startup] Warming up ReflexBrain...")
+        from .brain import brain_instance
+        safe_print("[Startup] Brain initialized successfully.")
+    except Exception as e:
+        safe_print(f"[Startup] Warning: Brain warmup failed: {e}")
+
 @app.get("/")
 def root():
     return {"status": "ok"}
@@ -88,18 +96,94 @@ async def run_cube(request: Request):
         cube_id = data.get("cube_id")
         input_data = data.get("input")
         
-        from app.cubes.registry import registry
-        cube = registry.get_cube(cube_id)
+        from .brain import brain_instance
         
-        if not cube:
-            return {"status": "error", "message": f"Cube '{cube_id}' not found."}
-            
-        result = cube.run(input_data)
-        return result
+        # Offload blocking inference to a threadpool
+        from starlette.concurrency import run_in_threadpool
+        
+        # The brain processes the request using Gemma + E2B + Apify
+        result_text = await run_in_threadpool(brain_instance.run_agent, input_data, cube_id)
+        
+        return {"status": "success", "result": result_text}
     except Exception as e:
         print(f"Cube Error: {e}")
         traceback.print_exc()
         return {"status": "error", "message": str(e)}
+
+class PDFRequest(BaseModel):
+    title: str
+    markdown: str
+
+@app.post("/api/cubes/pdf")
+async def generate_pdf(req: PDFRequest):
+    import markdown
+    from xhtml2pdf import pisa
+    from io import BytesIO
+    from fastapi.responses import StreamingResponse
+
+    # Convert Markdown to HTML
+    html_content = markdown.markdown(req.markdown, extensions=['fenced_code', 'tables'])
+    
+    # Wrap in a beautiful template
+    full_html = f"""
+    <html>
+    <head>
+        <style>
+            @page {{
+                size: a4 portrait;
+                @frame header_frame {{           /* Static Frame */
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+                }}
+                @frame content_frame {{          /* Content Frame */
+                    left: 50pt; width: 512pt; top: 90pt; height: 632pt;
+                }}
+            }}
+            body {{
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 11pt;
+                color: #222222;
+                line-height: 1.5;
+            }}
+            h1 {{ color: #111111; font-size: 24pt; border-bottom: 1px solid #dddddd; padding-bottom: 5px; }}
+            h2 {{ color: #333333; font-size: 18pt; margin-top: 20px; }}
+            h3 {{ color: #444444; font-size: 14pt; }}
+            p {{ margin-bottom: 10px; }}
+            code {{ background-color: #f4f4f4; padding: 2px 4px; border-radius: 4px; font-family: Courier, monospace; font-size: 10pt; }}
+            pre {{ background-color: #f4f4f4; padding: 10px; border-radius: 4px; font-family: Courier, monospace; font-size: 9pt; white-space: pre-wrap; }}
+            blockquote {{ border-left: 4px solid #dddddd; padding-left: 10px; color: #555555; font-style: italic; }}
+            ul, ol {{ margin-bottom: 10px; padding-left: 20px; }}
+            li {{ margin-bottom: 5px; }}
+            .title {{ font-size: 28pt; font-weight: bold; text-align: center; margin-bottom: 30px; color: #000; }}
+            .watermark {{ color: #eeeeee; font-size: 60pt; text-align: center; position: absolute; top: 300px; z-index: -1; transform: rotate(-45deg); }}
+        </style>
+    </head>
+    <body>
+        <div id="header_content">
+            <div style="font-size: 10pt; color: #888888; border-bottom: 1px solid #eeeeee; padding-bottom: 5px;">
+                ReflexCube Autonomous Engine - {req.title}
+            </div>
+        </div>
+        <div class="title">{req.title}</div>
+        {html_content}
+    </body>
+    </html>
+    """
+    
+    result_file = BytesIO()
+    pisa_status = pisa.CreatePDF(BytesIO(full_html.encode('utf-8')), dest=result_file)
+    
+    if pisa_status.err:
+        raise HTTPException(status_code=500, detail="Failed to generate PDF")
+        
+    result_file.seek(0)
+    
+    # Return as downloadable file
+    return StreamingResponse(
+        result_file,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={req.title.replace(' ', '_')}.pdf"}
+    )
 
 @app.post("/api/models/create")
 async def create_model(req: CreateModelRequest):

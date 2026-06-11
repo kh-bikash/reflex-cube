@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { ReactNode, useRef } from "react";
 import { useUISound } from "../../hooks/useUISound";
+import { cn } from "../../lib/utils";
 
 interface MagneticButtonProps {
     children: ReactNode;
@@ -43,7 +44,10 @@ export const MagneticButton = ({ children, className = "", onClick }: MagneticBu
                 onClick?.();
             }}
             style={{ x: springX, y: springY }}
-            className={`relative inline-flex items-center justify-center px-6 py-3 font-semibold text-white transition-colors rounded-full bg-midnight-800 hover:bg-neon-purple ${className}`}
+            className={cn(
+                "relative inline-flex items-center justify-center px-6 py-3 font-semibold text-primary-foreground transition-colors rounded-full bg-primary hover:bg-primary/90",
+                className
+            )}
         >
             <span className="relative z-10">{children}</span>
         </motion.button>

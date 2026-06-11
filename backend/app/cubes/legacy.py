@@ -36,55 +36,32 @@ LEGACY CODE:
 {source_code}
 """
         
-        # Call AI API (Pollinations - Mistral/OpenAI compatible)
+        # Call AI API using centralized router specifically requesting the code engine
+        from ..utils.ai_router import query_ai, extract_json
         try:
-            response = requests.post(
-                "https://text.pollinations.ai/",
-                json={
-                    "messages": [
-                        {"role": "system", "content": "You are a code modernization engine. Output valid JSON only."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "model": "mistral-large"
-                },
-                timeout=30
+            ai_text = query_ai(
+                system_prompt="You are a code modernization engine. Output valid JSON only.",
+                user_prompt=prompt,
+                engine_type="code"
             )
             
-            if response.status_code == 200:
-                ai_text = response.text.strip()
-                
-                # Robust Pattern Matching for JSON
-                # Sometimes models chat "Here is the JSON: ```json ... ```"
-                # We want to extract just the {...} block.
-                
-                # 1. Try to find the first '{' and the last '}'
-                start_idx = ai_text.find('{')
-                end_idx = ai_text.rfind('}')
-                
-                if start_idx != -1 and end_idx != -1:
-                    json_candidate = ai_text[start_idx : end_idx + 1]
-                else:
-                    json_candidate = ai_text # Fallback to full text if no braces found
-                
-                print(f"[Legacy Cube] Raw AI: {ai_text[:100]}...") # Debug log
-                print(f"[Legacy Cube] Extracted Candidate: {json_candidate[:100]}...")
-                
-                try:
-                    data = json.loads(json_candidate)
-                    return {
-                        "status": "success",
-                        "data": data
+            print(f"[Legacy Cube] Raw AI: {ai_text[:100]}...") # Debug log
+            
+            data = extract_json(ai_text)
+            if data:
+                return {
+                    "status": "success",
+                    "data": data
+                }
+            else:
+                print(f"JSON Parse Error. Raw: {ai_text}")
+                return {
+                    "status": "success",
+                    "data": {
+                        "modern_code": ai_text,
+                        "explanation": "AI generated code but returned invalid JSON structure. See code pane."
                     }
-                except json.JSONDecodeError:
-                    # Fallback if JSON fails
-                    print(f"JSON Parse Error. Raw: {ai_text}")
-                    return {
-                        "status": "success",
-                        "data": {
-                            "modern_code": ai_text,
-                            "explanation": "AI generated code but returned invalid JSON structure. See code pane."
-                        }
-                    }
+                }
                     
         except Exception as e:
             print(f"AI Error: {e}")
@@ -92,9 +69,9 @@ LEGACY CODE:
             return {
                 "status": "success",
                 "data": {
-                    "modern_code": f"# AI Service Unavailable. Mock Conversion:\n\ndef modern_version():\n    print('Converted to {target_lang}')",
+                    "modern_code": f"# AI Service Unavailable. Mock Conversion:\n\ndef modern_version():\n    pass # Failed to connect to engine",
                     "explanation": "Service timeout. Showing mock result."
                 }
             }
 
-        return {"status": "error", "message": "Unknown error"}
+

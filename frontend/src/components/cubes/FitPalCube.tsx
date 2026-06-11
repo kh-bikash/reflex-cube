@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Camera, Activity, PlayCircle, Plus, X, Upload } from 'lucide-react';
+import { api } from '../../lib/api';
 
 interface Exercise {
     name: string;
@@ -62,19 +63,15 @@ export default function FitPalCube() {
         }
         setStep(2);
         try {
-            const res = await fetch('http://localhost:8000/api/cubes/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cube_id: 'fitpal',
-                    input: {
-                        equipment: equipmentList, // Backend handles list
-                        goal: goal,
-                        experience: experience
-                    }
-                })
+            const res = await api.post('/cubes/run', {
+                cube_id: 'fitpal',
+                input: {
+                    equipment: equipmentList, // Backend handles list
+                    goal: goal,
+                    experience: experience
+                }
             });
-            const data = await res.json();
+            const data = res.data;
             if (data.status === 'success') {
                 setResult(data.data);
                 setStep(3);
@@ -89,9 +86,9 @@ export default function FitPalCube() {
     };
 
     return (
-        <div className="h-full w-full bg-[#121212] text-white p-8 overflow-y-auto font-sans">
+        <div className="h-full w-full bg-[#121212] text-foreground p-8 overflow-y-auto font-sans">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+            <div className="flex items-center gap-4 mb-8 pb-6 border-b border-border">
                 <div className="bg-orange-500 p-3 rounded-xl">
                     <Dumbbell className="text-black" size={32} />
                 </div>
@@ -110,10 +107,10 @@ export default function FitPalCube() {
                             <h2 className="text-2xl font-bold uppercase italic">1. Gear Check</h2>
 
                             {/* Photo Upload (Vision Simulation) */}
-                            <div className="border-2 border-dashed border-white/20 rounded-2xl p-6 text-center hover:bg-white/5 transition-colors relative overflow-hidden group">
+                            <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors relative overflow-hidden group">
                                 <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleImageUpload} />
-                                <Camera className="mx-auto mb-2 text-white/50 group-hover:text-orange-500 transition-colors" />
-                                <p className="text-sm text-white/60">Upload Gym Photo (Auto-Detect)</p>
+                                <Camera className="mx-auto mb-2 text-foreground/50 group-hover:text-orange-500 transition-colors" />
+                                <p className="text-sm text-muted-foreground">Upload Gym Photo (Auto-Detect)</p>
                                 {selectedImage && <img src={selectedImage} className="absolute inset-0 w-full h-full object-cover opacity-50" />}
                             </div>
 
@@ -125,13 +122,13 @@ export default function FitPalCube() {
                                         onChange={(e) => setCurrentInput(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && addEquipment(currentInput)}
                                         placeholder="Add equipment (e.g. 'Kettlebell')"
-                                        className="flex-1 bg-white/10 border-none rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+                                        className="flex-1 bg-muted border-none rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
                                     />
-                                    <button onClick={() => addEquipment(currentInput)} className="bg-white/10 p-2 rounded-lg hover:bg-white/20"><Plus /></button>
+                                    <button onClick={() => addEquipment(currentInput)} className="bg-muted p-2 rounded-lg hover:bg-muted/80"><Plus /></button>
                                 </div>
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {commonGear.map(item => (
-                                        <button key={item} onClick={() => addEquipment(item)} className="px-3 py-1 rounded-full text-xs border border-white/10 hover:border-orange-500 transition-colors">
+                                        <button key={item} onClick={() => addEquipment(item)} className="px-3 py-1 rounded-full text-xs border border-border hover:border-orange-500 transition-colors">
                                             + {item}
                                         </button>
                                     ))}
@@ -140,10 +137,10 @@ export default function FitPalCube() {
                                 <div className="flex flex-wrap gap-2">
                                     {equipmentList.map(item => (
                                         <span key={item} className="bg-orange-500 text-black px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
-                                            {item} <X size={14} className="cursor-pointer hover:text-white" onClick={() => setEquipmentList(l => l.filter(i => i !== item))} />
+                                            {item} <X size={14} className="cursor-pointer hover:text-foreground" onClick={() => setEquipmentList(l => l.filter(i => i !== item))} />
                                         </span>
                                     ))}
-                                    {equipmentList.length === 0 && <p className="text-white/30 text-sm italic">No equipment added yet.</p>}
+                                    {equipmentList.length === 0 && <p className="text-foreground/30 text-sm italic">No equipment added yet.</p>}
                                 </div>
                             </div>
                         </div>
@@ -152,11 +149,11 @@ export default function FitPalCube() {
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold uppercase italic">2. Goal Setting</h2>
                             <div>
-                                <label className="block text-sm text-white/50 mb-2">Primary Goal</label>
+                                <label className="block text-sm text-foreground/50 mb-2">Primary Goal</label>
                                 <select
                                     value={goal}
                                     onChange={(e) => setGoal(e.target.value)}
-                                    className="w-full bg-white/10 p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full bg-muted p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-orange-500"
                                 >
                                     <option>Hypertrophy (Build Muscle)</option>
                                     <option>Strength (Powerlifting)</option>
@@ -165,11 +162,11 @@ export default function FitPalCube() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm text-white/50 mb-2">Experience Level</label>
+                                <label className="block text-sm text-foreground/50 mb-2">Experience Level</label>
                                 <select
                                     value={experience}
                                     onChange={(e) => setExperience(e.target.value)}
-                                    className="w-full bg-white/10 p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full bg-muted p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-orange-500"
                                 >
                                     <option>Beginner</option>
                                     <option>Intermediate</option>
@@ -193,7 +190,7 @@ export default function FitPalCube() {
                 <div className="flex flex-col items-center justify-center h-[50vh]">
                     <Activity className="w-24 h-24 text-orange-500 animate-bounce mb-8" />
                     <h2 className="text-3xl font-black italic uppercase">Building Routine...</h2>
-                    <p className="text-white/50 font-mono mt-2">ANALYZING EQUIPMENT • CALCULATING LOAD • OPTIMIZING REST</p>
+                    <p className="text-foreground/50 font-mono mt-2">ANALYZING EQUIPMENT • CALCULATING LOAD • OPTIMIZING REST</p>
                 </div>
             )}
 
@@ -206,40 +203,40 @@ export default function FitPalCube() {
                                 {result.duration_minutes} MINUTES
                             </span>
                             <h2 className="text-4xl font-black italic uppercase mb-2">{result.workout_name}</h2>
-                            <p className="text-white/60 text-lg">"{result.coach_tip}"</p>
+                            <p className="text-muted-foreground text-lg">"{result.coach_tip}"</p>
                         </div>
-                        <button onClick={() => setStep(1)} className="text-white/40 hover:text-white underline text-sm">New Workout</button>
+                        <button onClick={() => setStep(1)} className="text-muted-foreground hover:text-foreground underline text-sm">New Workout</button>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {/* Main Workout List */}
                         <div className="md:col-span-2 space-y-4">
                             {/* Warmup */}
-                            <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
+                            <div className="bg-muted/50 rounded-2xl p-6 border border-border">
                                 <h3 className="text-xl font-bold text-orange-500 mb-4 uppercase">Warm Up</h3>
-                                {result.warmup.map((ex, i) => (
-                                    <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                                {(result.warmup || []).map((ex, i) => (
+                                    <div key={i} className="flex justify-between items-center py-2 border-b border-border last:border-0">
                                         <span className="font-bold">{ex.name}</span>
-                                        <span className="text-white/50 text-sm mono">{ex.duration}</span>
+                                        <span className="text-foreground/50 text-sm mono">{ex.duration}</span>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Main Circuit */}
-                            <div className="bg-white/5 rounded-2xl p-6 border border-2 border-orange-500/20 relative overflow-hidden">
+                            <div className="bg-muted/50 rounded-2xl p-6 border border-2 border-orange-500/20 relative overflow-hidden">
                                 <div className='absolute top-0 right-0 p-4 opacity-5'><Dumbbell size={100} /></div>
                                 <h3 className="text-xl font-bold text-orange-500 mb-6 uppercase">Main Lift</h3>
                                 <div className="space-y-6">
-                                    {result.main_circuit.map((ex, i) => (
-                                        <div key={i} className="bg-black/20 rounded-xl p-4 hover:bg-black/40 transition-colors">
+                                    {(result.main_circuit || []).map((ex, i) => (
+                                        <div key={i} className="bg-background/20 rounded-xl p-4 hover:bg-background/40 transition-colors">
                                             <div className='flex justify-between items-start mb-2'>
                                                 <h4 className='text-lg font-bold'>{ex.name}</h4>
                                                 <div className='text-right'>
                                                     <div className='text-orange-400 font-black text-xl'>{ex.sets} X {ex.reps}</div>
-                                                    <div className='text-xs text-white/40 font-mono'>Rest: {ex.rest}</div>
+                                                    <div className='text-xs text-muted-foreground font-mono'>Rest: {ex.rest}</div>
                                                 </div>
                                             </div>
-                                            <p className='text-sm text-white/60 italic border-l-2 border-white/20 pl-3'>{ex.notes}</p>
+                                            <p className='text-sm text-muted-foreground italic border-l-2 border-border pl-3'>{ex.notes}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -248,21 +245,21 @@ export default function FitPalCube() {
 
                         {/* Sidebar */}
                         <div className="space-y-4">
-                            <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                                <h3 className="text-sm font-bold text-white/50 mb-4 uppercase tracking-widest">Cooldown</h3>
-                                {result.cooldown.map((ex, i) => (
-                                    <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                            <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                                <h3 className="text-sm font-bold text-foreground/50 mb-4 uppercase tracking-widest">Cooldown</h3>
+                                {(result.cooldown || []).map((ex, i) => (
+                                    <div key={i} className="flex justify-between items-center py-2 border-b border-border last:border-0">
                                         <span className="text-sm">{ex.name}</span>
-                                        <span className="text-white/50 text-xs mono">{ex.duration}</span>
+                                        <span className="text-foreground/50 text-xs mono">{ex.duration}</span>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                                <h3 className="text-sm font-bold text-white/50 mb-4 uppercase tracking-widest">Equipment</h3>
+                            <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                                <h3 className="text-sm font-bold text-foreground/50 mb-4 uppercase tracking-widest">Equipment</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {result.equipment_used.map(item => (
-                                        <span key={item} className="text-xs border border-white/20 rounded px-2 py-1 text-white/70">{item}</span>
+                                    {(result.equipment_used || []).map(item => (
+                                        <span key={item} className="text-xs border border-border rounded px-2 py-1 text-foreground/70">{item}</span>
                                     ))}
                                 </div>
                             </div>

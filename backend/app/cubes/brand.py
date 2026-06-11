@@ -58,50 +58,12 @@ class BrandCube(Cube):
             
             user_prompt = f"Brand: {brand_input}\nIndustry: {industry}\n\nPerform the Alchemical Analysis. JSON Only."
             
-            # API Call
-            max_retries = 3
-            response = None
+            # API Call via Router
+            from ..utils.ai_router import query_ai, extract_json
             
-            for attempt in range(max_retries):
-                try:
-                    print(f"[Brand Alchemist] Distilling essence... (Attempt {attempt+1})")
-                    response = requests.post(
-                        "https://text.pollinations.ai/",
-                        headers={"Content-Type": "application/json"},
-                        json={
-                            "messages": [
-                                {"role": "system", "content": system_prompt},
-                                {"role": "user", "content": user_prompt}
-                            ],
-                            "model": "mistral",
-                            "seed": random.randint(0, 1000)
-                        },
-                        timeout=60
-                    )
-                    if response.status_code == 200:
-                        break
-                except Exception as req_err:
-                    print(f"[Brand Alchemist] Connection Error: {req_err}. Retrying...")
-                    import time
-                    time.sleep(2 ** attempt)
+            content = query_ai(system_prompt, user_prompt, model_preference="mistral")
             
-            if response and response.status_code == 200:
-                content = response.text
-                
-                # Parse JSON helper (same robust logic as before)
-                def extract_json(text):
-                    if isinstance(text, dict): return text
-                    text = str(text).strip()
-                    if "```json" in text: text = text.split("```json")[1].split("```")[0]
-                    elif "```" in text: text = text.split("```")[1].split("```")[0]
-                    try: return json.loads(text)
-                    except: pass
-                    start, end = text.find("{"), text.rfind("}")
-                    if start != -1 and end != -1:
-                        try: return json.loads(text[start:end+1])
-                        except: pass
-                    return None
-                
+            if content:
                 data = extract_json(content)
                 if not data: raise Exception("Failed to distill JSON from Alchemist.")
                 
@@ -157,7 +119,7 @@ class BrandCube(Cube):
                     }
                 }
             else:
-                 raise Exception(f"Alchemist timed out: {response.status_code if response else 'Time'}")
+                 raise Exception("AI Provider Unavailable (All Routes Failed)")
                  
         except Exception as e:
             print(f"[Brand Alchemist Error] {str(e)}")

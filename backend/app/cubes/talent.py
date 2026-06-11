@@ -54,12 +54,17 @@ Return JSON ONLY:
 """
         try:
             # AI Inference
-            response = requests.post(
-                "https://text.pollinations.ai/",
-                json={"messages": [{"role": "system", "content": "Output valid JSON."}, {"role": "user", "content": prompt}], "model": "mistral-large", "seed": 123},
-                timeout=30
-            ) 
-            return self._parse_ai_response(response)
+            # AI Inference via Router
+            from ..utils.ai_router import query_ai, extract_json
+            
+            response_text = query_ai("Output valid JSON.", prompt, model_preference="mistral-large")
+            
+            if response_text:
+                data = extract_json(response_text)
+                if data:
+                     return {"status": "success", "data": data}
+            
+            return {"status": "error", "message": "AI Training Failed"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
@@ -96,14 +101,15 @@ Return JSON:
             try:
                 # Real AI call per candidate (Slow but accurate)
                 # Optimization: We could batch multiple resumes in one prompt if short.
-                res = requests.post(
-                    "https://text.pollinations.ai/",
-                    json={"messages": [{"role": "system", "content": "Output JSON."}, {"role": "user", "content": prompt}], "model": "mistral-large"},
-                    timeout=20
-                )
-                parsed = self._parse_ai_response(res)
-                if parsed['status'] == 'success':
-                    results.append(parsed['data'])
+                # Real AI call via Router
+                from ..utils.ai_router import query_ai, extract_json
+                
+                res_text = query_ai("Output JSON.", prompt, model_preference="mistral-large")
+                
+                parsed_data = extract_json(res_text) if res_text else None
+                
+                if parsed_data:
+                    results.append(parsed_data)
                 else:
                     results.append({"name": "Unknown", "score": 0, "decision": "ERROR", "reasoning": "AI Failed"})
             except:

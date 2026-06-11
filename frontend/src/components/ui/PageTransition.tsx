@@ -7,21 +7,21 @@ interface PageTransitionProps {
 }
 
 const variants = {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: 10 },
     enter: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 },
+    exit: { opacity: 0, y: -10 },
 };
 
 export const PageTransition = ({ children, className = "" }: PageTransitionProps) => {
     return (
         <motion.div
-            // @ts-ignore
+            // @ts-expect-error type override
             initial="initial"
             animate="enter"
             exit="exit"
             variants={variants}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className={`w-full min-h-screen ${className}`}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={`w-full flex-1 flex flex-col ${className}`}
         >
             {children}
         </motion.div>

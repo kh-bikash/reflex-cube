@@ -4,15 +4,31 @@ import { Upload, X, ChefHat, Clock, Flame, List, Camera, Type } from 'lucide-rea
 import { api } from '../../lib/api';
 import { toast } from 'sonner';
 
-interface ChefCubeProps {
-    onClose: () => void;
+interface Suggestion {
+    name: string;
+    time: string;
 }
 
-export const ChefCube = ({ onClose }: ChefCubeProps) => {
+interface Recipe {
+    name: string;
+    time?: string;
+    difficulty?: string;
+    calories?: number;
+    ingredients?: string[];
+    steps?: string[];
+}
+
+interface ChefResult {
+    safety?: string;
+    suggestions?: Suggestion[];
+    recipe?: Recipe;
+}
+
+export const ChefCube = () => {
     const [image, setImage] = useState<string | null>(null);
     const [textInput, setTextInput] = useState('');
     const [analyzing, setAnalyzing] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<ChefResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,38 +66,32 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            className="w-full h-full flex items-center justify-center bg-background"
         >
-            <div className="bg-midnight-900 border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative flex flex-col md:flex-row">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors z-10"
-                >
-                    <X size={20} />
-                </button>
+            <div className="bg-background w-full h-full overflow-y-auto relative flex flex-col md:flex-row">
 
                 {/* Left Panel: Input */}
-                <div className="w-full md:w-1/2 p-8 border-b md:border-b-0 md:border-r border-white/5 flex flex-col">
+                <div className="w-full md:w-1/2 p-8 border-b md:border-b-0 md:border-r border-border flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400">
                             <ChefHat size={24} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white">Chef Cube</h2>
-                            <p className="text-white/40 text-sm">Fridge-to-Recipe Engine</p>
+                            <h2 className="text-2xl font-bold text-foreground">Chef Cube</h2>
+                            <p className="text-muted-foreground text-sm">Fridge-to-Recipe Engine</p>
                         </div>
                     </div>
 
-                    <div className="flex-grow flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-white/5 min-h-[300px] relative overflow-hidden group mb-4">
+                    <div className="flex-grow flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-muted/50 min-h-[300px] relative overflow-hidden group mb-4">
                         {image ? (
                             <img src={image} alt="Fridge content" className="w-full h-full object-cover" />
                         ) : (
                             <div className="text-center p-6">
-                                <Camera className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                                <p className="text-white/40 mb-4">Upload a photo of your fridge</p>
+                                <Camera className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
+                                <p className="text-muted-foreground mb-4">Upload a photo of your fridge</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+                                    className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-foreground rounded-lg font-medium transition-colors"
                                 >
                                     Select Photo
                                 </button>
@@ -96,7 +106,7 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                         />
 
                         {analyzing && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
                                 <div className="text-center">
                                     <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                                     <p className="text-orange-400 font-mono text-sm animate-pulse">Scanning Ingredients...</p>
@@ -109,7 +119,7 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                     {!image && !result && (
                         <div className="w-full relative mb-4">
                             <div className="absolute inset-x-0 top-0 -translate-y-1/2 flex justify-center">
-                                <span className="bg-midnight-900 px-2 text-white/20 text-xs uppercase bg-[#0f111a]">OR</span>
+                                <span className="bg-background px-2 text-foreground/20 text-xs uppercase bg-[#0f111a]">OR</span>
                             </div>
                             <div className="relative mt-2">
                                 <input
@@ -117,9 +127,9 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                                     placeholder="Type ingredients (e.g. apple, milk)..."
                                     value={textInput}
                                     onChange={(e) => setTextInput(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pl-10 text-white placeholder-white/30 focus:outline-none focus:border-orange-500 transition-colors"
+                                    className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 pl-10 text-foreground placeholder-white/30 focus:outline-none focus:border-orange-500 transition-colors"
                                 />
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30">
                                     <Type size={16} />
                                 </div>
                             </div>
@@ -138,7 +148,7 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                 </div>
 
                 {/* Right Panel: Result */}
-                <div className="w-full md:w-1/2 p-8 bg-black/20">
+                <div className="w-full md:w-1/2 p-8 bg-background/20">
                     {result ? (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -148,38 +158,35 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                             {result.status === 'error' ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center">
                                     <div className="text-red-400 text-6xl mb-6">⚠️</div>
-                                    <h3 className="text-2xl font-bold text-white mb-2">Oops!</h3>
-                                    <p className="text-white/60 mb-6">{result.message || "Something went wrong."}</p>
+                                    <h3 className="text-2xl font-bold text-foreground mb-2">Oops!</h3>
+                                    <p className="text-muted-foreground mb-6">{result.message || "Something went wrong."}</p>
                                     <button
                                         onClick={() => setResult(null)}
-                                        className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm transition-colors"
+                                        className="px-6 py-2 bg-muted hover:bg-muted/80 rounded-full text-sm transition-colors"
                                     >
                                         Try Again
                                     </button>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="mb-6 bg-white/5 p-4 rounded-xl border border-white/10">
-                                        <h4 className="text-white/60 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <div className="mb-6 bg-muted/50 p-4 rounded-xl border border-border">
+                                        <h4 className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                                             🔍 Chef's Analysis
                                         </h4>
-                                        <p className="text-white/80 text-sm italic">"{result.analysis}"</p>
+                                        <p className="text-foreground/80 text-sm italic">"{result.analysis}"</p>
                                     </div>
 
-                                    <h3 className="text-3xl font-display font-bold text-white mb-2">{result.recipe?.title}</h3>
-                                    <p className="text-white/60 text-sm mb-4">{result.recipe?.description}</p>
+                                    <h3 className="text-3xl font-display font-bold text-foreground mb-2">{result.recipe?.title}</h3>
+                                    <p className="text-muted-foreground text-sm mb-4">{result.recipe?.description}</p>
 
                                     {result.recipe?.image_url && (
                                         <div className="mb-6 w-full">
                                             <img
                                                 src={result.recipe.image_url}
                                                 alt="AI Generated Dish"
-                                                className="w-full h-auto rounded-xl shadow-lg border border-white/20"
+                                                className="w-full h-auto rounded-xl shadow-lg border border-border"
                                                 loading="eager"
-                                                onError={(e) => {
-                                                    console.error("Image Load Error:", e);
-                                                    e.currentTarget.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80";
-                                                }}
+                                                referrerPolicy="no-referrer"
                                             />
                                         </div>
                                     )}
@@ -210,10 +217,10 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                                     {/* Other Suggestions */}
                                     {result.suggestions && result.suggestions.length > 0 && (
                                         <div className="mb-6">
-                                            <h4 className="text-white/40 text-xs font-bold uppercase tracking-wider mb-2">Other Ideas Considered</h4>
+                                            <h4 className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-2">Other Ideas Considered</h4>
                                             <div className="flex flex-wrap gap-2">
-                                                {result.suggestions.map((s: any, idx: number) => (
-                                                    <span key={idx} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/60">
+                                                {result.suggestions.map((s: Suggestion, idx: number) => (
+                                                    <span key={idx} className="px-3 py-1 bg-muted/50 border border-border rounded-full text-xs text-muted-foreground">
                                                         {s.name} ({s.time})
                                                     </span>
                                                 ))}
@@ -223,26 +230,26 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
 
                                     {/* Ingredients */}
                                     <div className="mb-6">
-                                        <h4 className="text-white/60 text-sm font-bold uppercase tracking-wider mb-3">Detected Ingredients</h4>
+                                        <h4 className="text-muted-foreground text-sm font-bold uppercase tracking-wider mb-3">Detected Ingredients</h4>
                                         <div className="flex flex-wrap gap-2">
                                             {result.recipe?.ingredients?.map((ing: string) => (
-                                                <span key={ing} className="px-2 py-1 bg-white/10 rounded-md text-sm text-white/80">{ing}</span>
+                                                <span key={ing} className="px-2 py-1 bg-muted rounded-md text-sm text-foreground/80">{ing}</span>
                                             ))}
                                         </div>
                                     </div>
 
                                     {/* Steps */}
                                     <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar">
-                                        <h4 className="text-white/60 text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                                        <h4 className="text-muted-foreground text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
                                             <List size={14} /> Instructions
                                         </h4>
                                         <div className="space-y-6">
                                             {result.recipe?.steps?.map((step: string, i: number) => (
                                                 <div key={i} className="flex gap-4 group">
-                                                    <span className="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex-shrink-0 flex items-center justify-center text-sm font-bold group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                                    <span className="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex-shrink-0 flex items-center justify-center text-sm font-bold group-hover:bg-orange-500 group-hover:text-foreground transition-colors">
                                                         {i + 1}
                                                     </span>
-                                                    <p className="text-white/80 leading-relaxed text-sm pt-1 border-b border-white/5 pb-4 w-full">{step}</p>
+                                                    <p className="text-foreground/80 leading-relaxed text-sm pt-1 border-b border-border pb-4 w-full">{step}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -258,7 +265,7 @@ export const ChefCube = ({ onClose }: ChefCubeProps) => {
                             )}
                         </motion.div>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-white/20">
+                        <div className="h-full flex flex-col items-center justify-center text-foreground/20">
                             <ChefHat className="w-24 h-24 mb-4 opacity-20" />
                             <p className="text-lg">Your personal AI Chef is ready.</p>
                             <p className="text-sm">Upload a photo to start cooking.</p>

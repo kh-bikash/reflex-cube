@@ -4,14 +4,18 @@ import { X, Scan, Camera, FileText, CheckCircle, Search, Copy } from 'lucide-rea
 import { api } from '../../lib/api';
 import { toast } from 'sonner';
 
-interface LensCubeProps {
-    onClose: () => void;
+interface LensResult {
+    type: string;
+    identified: string;
+    confidence: string;
+    details: string;
+    ocr_text?: string;
 }
 
-export const LensCube = ({ onClose }: LensCubeProps) => {
+export const LensCube = () => {
     const [image, setImage] = useState<string | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<LensResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,25 +57,19 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            className="w-full h-full flex items-center justify-center bg-background"
         >
-            <div className="bg-midnight-900 border border-white/10 w-full max-w-5xl h-[80vh] rounded-3xl shadow-2xl relative flex flex-col md:flex-row overflow-hidden">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors z-20"
-                >
-                    <X size={20} />
-                </button>
+            <div className="bg-background w-full h-full relative flex flex-col md:flex-row overflow-hidden">
 
                 {/* Left Panel: Camera/Image */}
-                <div className="w-full md:w-1/2 bg-black relative flex flex-col">
+                <div className="w-full md:w-1/2 bg-background relative flex flex-col">
                     <div className="absolute top-6 left-6 z-10 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
                             <Scan size={24} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white">Lens Cube</h2>
-                            <p className="text-white/40 text-xs uppercase tracking-wider">Universal Scanner</p>
+                            <h2 className="text-xl font-bold text-foreground">Lens Cube</h2>
+                            <p className="text-muted-foreground text-xs uppercase tracking-wider">Universal Scanner</p>
                         </div>
                     </div>
 
@@ -87,13 +85,13 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
                             </div>
                         ) : (
                             <div className="text-center p-8">
-                                <div className="w-20 h-20 border-2 border-white/10 border-dashed rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:border-blue-500/50 transition-colors">
-                                    <Camera className="w-8 h-8 text-white/20 group-hover:text-blue-400 transition-colors" />
+                                <div className="w-20 h-20 border-2 border-border border-dashed rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:border-blue-500/50 transition-colors">
+                                    <Camera className="w-8 h-8 text-foreground/20 group-hover:text-blue-400 transition-colors" />
                                 </div>
-                                <p className="text-white/40 mb-6">Drop an image to identify objects or text.</p>
+                                <p className="text-muted-foreground mb-6">Drop an image to identify objects or text.</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+                                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-foreground rounded-lg font-medium transition-colors"
                                 >
                                     Activate Camera / Upload
                                 </button>
@@ -119,7 +117,7 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
                 </div>
 
                 {/* Right Panel: Analysis Results */}
-                <div className="w-full md:w-1/2 p-8 bg-midnight-900 border-t md:border-t-0 md:border-l border-white/5 flex flex-col overflow-y-auto">
+                <div className="w-full md:w-1/2 p-8 bg-background border-t md:border-t-0 md:border-l border-border flex flex-col overflow-y-auto">
                     {result ? (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                             {/* Identification Badge */}
@@ -128,15 +126,15 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
                             </div>
 
                             <div>
-                                <h3 className="text-3xl font-display font-bold text-white mb-2">{result.identified}</h3>
-                                <p className="text-white/40 font-mono text-sm">Confidence: <span className="text-green-400">{result.confidence}</span></p>
+                                <h3 className="text-3xl font-display font-bold text-foreground mb-2">{result.identified}</h3>
+                                <p className="text-muted-foreground font-mono text-sm">Confidence: <span className="text-success">{result.confidence}</span></p>
                             </div>
 
-                            <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                                <h4 className="text-white font-bold mb-3 flex items-center gap-2 text-sm uppercase text-white/60">
+                            <div className="p-6 rounded-2xl bg-muted/50 border border-border">
+                                <h4 className="text-foreground font-bold mb-3 flex items-center gap-2 text-sm uppercase text-muted-foreground">
                                     Knowledge Base
                                 </h4>
-                                <p className="text-white/80 leading-relaxed">
+                                <p className="text-foreground/80 leading-relaxed">
                                     {result.details}
                                 </p>
                             </div>
@@ -144,7 +142,7 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
                             {result.ocr_text && (
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between mb-3">
-                                        <h4 className="text-white font-bold flex items-center gap-2 text-sm uppercase text-white/60">
+                                        <h4 className="text-foreground font-bold flex items-center gap-2 text-sm uppercase text-muted-foreground">
                                             <FileText size={14} /> Extracted Text
                                         </h4>
                                         <button
@@ -152,22 +150,22 @@ export const LensCube = ({ onClose }: LensCubeProps) => {
                                                 navigator.clipboard.writeText(result.ocr_text);
                                                 toast.success("Text copied!");
                                             }}
-                                            className="p-1.5 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors"
+                                            className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
                                         >
                                             <Copy size={14} />
                                         </button>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-sm text-white/70 whitespace-pre-wrap">
+                                    <div className="p-4 rounded-xl bg-background/40 border border-border font-mono text-sm text-foreground/70 whitespace-pre-wrap">
                                         {result.ocr_text}
                                     </div>
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-white/20 select-none">
+                        <div className="h-full flex flex-col items-center justify-center text-foreground/20 select-none">
                             <div className="relative">
                                 <Scan className="w-24 h-24 mb-6 opacity-20" />
-                                <div className="absolute inset-0 border-t-2 border-b-2 border-white/10 animate-pulse" />
+                                <div className="absolute inset-0 border-t-2 border-b-2 border-border animate-pulse" />
                             </div>
                             <p className="text-lg font-medium">Awaiting Input</p>
                             <p className="text-sm">Upload an image to begin analysis.</p>

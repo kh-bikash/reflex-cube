@@ -1,0 +1,10 @@
+{
+  "root": ".",
+  "pythonVersion": "3.10",
+  "extraPaths": ["."],
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "none",
+  "venvPath": ".",
+  "include": ["app"],
+  "exclude": ["**/__pycache__"]
+}

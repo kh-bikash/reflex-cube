@@ -1,11 +1,5 @@
 import { motion } from "framer-motion";
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-// Inline utility to avoid import errors
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
-}
+import { cn } from "../lib/utils";
 
 const features = [
     {
@@ -34,7 +28,7 @@ export const AboutSection = () => {
     return (
         <section className="relative z-10 py-32 px-4 md:px-8 max-w-7xl mx-auto">
             <div className="mb-20">
-                {/* @ts-ignore */}
+                {/* @ts-expect-error: Motion component types compatibility */}
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -43,13 +37,13 @@ export const AboutSection = () => {
                 >
                     Redefining Intelligence.
                 </motion.h2>
-                {/* @ts-ignore */}
+                {/* @ts-expect-error: Motion component types compatibility */}
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="text-xl text-zinc-400 max-w-2xl font-light"
+                    className="text-xl text-muted-foreground max-w-2xl font-light"
                 >
                     We build the infrastructure for the next generation of AI models.
                     Powerful, scalable, and beautifully designed.
@@ -58,7 +52,7 @@ export const AboutSection = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]">
                 {features.map((feature, i) => (
-                    // @ts-ignore
+                    // @ts-expect-error: Motion component types compatibility
                     <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -66,15 +60,15 @@ export const AboutSection = () => {
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.1 }}
                         className={cn(
-                            "group relative overflow-hidden rounded-3xl bg-zinc-900/50 border border-white/10 p-8 hover:bg-zinc-900/80 transition-colors",
+                            "group relative overflow-hidden rounded-3xl bg-card border border-border p-8 hover:bg-muted/50 transition-colors shadow-sm",
                             feature.className
                         )}
                     >
                         <div className="relative z-10 h-full flex flex-col justify-between">
-                            <h3 className="text-2xl font-bold font-display">{feature.title}</h3>
-                            <p className="text-zinc-400">{feature.description}</p>
+                            <h3 className="text-2xl font-bold font-display text-foreground">{feature.title}</h3>
+                            <p className="text-muted-foreground">{feature.description}</p>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-br from-neon-blue/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </motion.div>
                 ))}
             </div>

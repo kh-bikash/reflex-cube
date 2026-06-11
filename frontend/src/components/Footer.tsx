@@ -1,71 +1,104 @@
 import { Button } from "./ui/button";
-import { Github, Twitter, Linkedin, ArrowRight } from "lucide-react";
+import { Github, Twitter, Linkedin, ArrowRight, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
-    <footer className="relative z-20 bg-black border-t border-white/10 pt-20 pb-10 overflow-hidden">
-      {/* Background enhancement */}
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+    <footer className="relative z-20 bg-[#000] border-t border-white/5 pt-24 overflow-hidden rounded-t-[3rem] mt-20">
+      
+      {/* Animated Glowing Orbs in Background */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-white/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-neon-cyan/20 rounded-lg flex items-center justify-center border border-neon-cyan/50">
-                <div className="w-3 h-3 bg-neon-cyan rounded-full shadow-[0_0_10px_rgba(0,240,255,0.8)]" />
-              </div>
-              <span className="text-2xl font-bold tracking-tighter text-white">ReflexCube</span>
+      <div className="max-w-[1400px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-32">
+          
+          <div className="col-span-1 md:col-span-6 flex flex-col justify-between">
+            <div>
+                <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 backdrop-blur-md">
+                    <div className="w-3 h-3 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,1)]" />
+                </div>
+                <span className="text-3xl font-bold tracking-tight text-white">Reflex<span className="text-white/60">Cube</span></span>
+                </div>
+                <p className="text-white/60 text-xl font-light max-w-md leading-relaxed">
+                The cognitive architecture for autonomous AI models.
+                Built for speed. Designed for scale.
+                </p>
             </div>
-            <p className="text-gray-400 max-w-sm mb-8">
-              The next generation AI model training and deployment platform.
-              Built for speed, designed for scale, engineered for the future.
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 w-64 text-white focus:outline-none focus:border-neon-purple/50 transition-colors"
-                />
-                <Button size="sm" className="absolute right-1 top-1 bg-white/10 hover:bg-white/20 text-white h-8 px-3">
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
+
+            <div className="mt-12 group relative inline-flex">
+                <div className="absolute -inset-1 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative flex items-center bg-[#0a0a0a] border border-white/10 rounded-full p-1 w-full max-w-md">
+                    <input
+                    type="email"
+                    placeholder="Subscribe to updates"
+                    className="bg-transparent px-6 py-3 w-full text-white placeholder-white/30 focus:outline-none text-sm"
+                    />
+                    <button className="bg-white hover:bg-white/90 text-black rounded-full h-10 px-6 font-semibold flex items-center gap-2 transition-transform hover:scale-105">
+                    <span>Join</span>
+                    <ArrowRight className="w-4 h-4" />
+                    </button>
+                </div>
             </div>
           </div>
 
-          <div>
-            <h4 className="text-white font-bold mb-6 tracking-wide">Platform</h4>
-            <ul className="space-y-4 text-gray-400">
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Neural Engine</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Model Zoo</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Deployments</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Analytics</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Pricing</a></li>
+          <div className="col-span-1 md:col-span-3">
+            <h4 className="text-white font-semibold mb-8 text-lg">Platform</h4>
+            <ul className="space-y-4">
+              {['AI Cubes', 'Generate Model', 'Dashboard', 'API Docs', 'Changelog'].map((link) => {
+                  let path = `/${link.toLowerCase().replace(' ', '-')}`;
+                  if (link === 'AI Cubes') path = '/services';
+                  if (link === 'Generate Model') path = '/generate';
+                  return (
+                      <li key={link}>
+                          <Link to={path} className="group flex items-center text-white/50 hover:text-white transition-colors text-lg font-light">
+                              {link}
+                              <ArrowUpRight className="w-4 h-4 ml-2 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300" />
+                          </Link>
+                      </li>
+                  );
+              })}
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-white font-bold mb-6 tracking-wide">Company</h4>
-            <ul className="space-y-4 text-gray-400">
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Documentation</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Contact</a></li>
+          <div className="col-span-1 md:col-span-3">
+            <h4 className="text-white font-semibold mb-8 text-lg">Resources</h4>
+            <ul className="space-y-4">
+              {['Documentation', 'Blog', 'Community', 'Support', 'Status'].map((link) => (
+                  <li key={link}>
+                      <Link to={`/${link.toLowerCase()}`} className="group flex items-center text-white/50 hover:text-white transition-colors text-lg font-light">
+                          {link}
+                          <ArrowUpRight className="w-4 h-4 ml-2 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300" />
+                      </Link>
+                  </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-gray-500 text-sm">
-            © 2024 ReflexCube Inc. All rights reserved.
-          </div>
-          <div className="flex gap-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Linkedin className="w-5 h-5" /></a>
-          </div>
+        {/* Massive Typography */}
+        <div className="w-full border-t border-white/10 pt-16 pb-8 flex flex-col items-center">
+            <motion.h1 
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1 }}
+                className="text-[12vw] font-bold tracking-tighter text-white/5 leading-none select-none"
+            >
+                REFLEXCUBE
+            </motion.h1>
+            
+            <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4 mt-8">
+                <div className="text-white/40 text-sm font-light">
+                    © 2026 ReflexCube Inc. All rights reserved.
+                </div>
+                <div className="flex gap-8">
+                    <a href="#" className="text-white/40 hover:text-white transition-transform hover:scale-110"><Github className="w-5 h-5" /></a>
+                    <a href="#" className="text-white/40 hover:text-white transition-transform hover:scale-110"><Twitter className="w-5 h-5" /></a>
+                    <a href="#" className="text-white/40 hover:text-white transition-transform hover:scale-110"><Linkedin className="w-5 h-5" /></a>
+                </div>
+            </div>
         </div>
       </div>
     </footer>

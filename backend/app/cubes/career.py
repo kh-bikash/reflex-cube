@@ -72,47 +72,22 @@ class CareerCube(Cube):
                 "}"
             )
             
-            # Truncate text if too long (approx 4000 chars to stay within context window safely)
-            # Pollinations/OpenAI has limits, though GPT-4o is large. Let's be safe.
-            safe_text = extracted_text[:8000]
+            # Truncate text strictly to fit within the lower 2048 context limit
+            safe_text = extracted_text[:1500]
             
             user_prompt = f"Here is my resume text:\n\n{safe_text}\n\nPlease analyze and optimize it. Return ONLY the JSON object, nothing else."
             
             # Retry Logic
-            max_retries = 3
-            response = None
+            # API Call via Router
+            from ..utils.ai_router import query_ai, extract_json
             
-            for attempt in range(max_retries):
-                try:
-                    print(f"[Career Cube] Processing Resume (Attempt {attempt+1}/{max_retries})...")
-                    response = requests.post(
-                        "https://text.pollinations.ai/",
-                        headers={"Content-Type": "application/json"},
-                        json={
-                            "messages": [
-                                {"role": "system", "content": system_prompt},
-                                {"role": "user", "content": user_prompt}
-                            ],
-                            "model": "mistral",  # Changed from openai to avoid structured reasoning
-                            "seed": random.randint(0, 1000)
-                        },
-                        timeout=120 
-                    )
-                    if response.status_code == 200:
-                        break
-                except Exception as req_err:
-                     print(f"[Career Cube] Connection Error: {req_err}. Retrying...")
-                
-                import time
-                time.sleep(2 ** attempt)
-
-            if response and response.status_code == 200:
-                content = response.text
-                
+            content = query_ai(system_prompt, user_prompt, model_preference="mistral", engine_type="code")
+            
+            if content:
                 # Debug: Log raw response
-                print(f"[Career Cube] Raw API response (first 200 chars): {content[:200]}")
+                print(f"[Career Cube] Raw API response (first 200 chars): {content[:200].encode('ascii', 'replace').decode('ascii')}")
                 
-                # The API might return structured JSON with the content nested inside
+                 # The API might return structured JSON with the content nested inside
                 # Try to parse it as JSON first
                 try:
                     api_json = json.loads(content)
@@ -123,68 +98,28 @@ class CareerCube(Cube):
                         # Try different possible content fields
                         if 'content' in api_json:
                             content = api_json['content']
-                            print(f"[Career Cube] Extracted content from 'content' field")
                         elif 'text' in api_json:
                             content = api_json['text']
-                            print(f"[Career Cube] Extracted content from 'text' field")
                         elif 'message' in api_json:
                             content = api_json['message']
-                            print(f"[Career Cube] Extracted content from 'message' field")
                         elif 'tool_calls' in api_json and api_json['tool_calls']:
-                            # Extract from tool_calls if present
                             tool_call = api_json['tool_calls'][0]
                             if 'function' in tool_call and 'arguments' in tool_call['function']:
                                 content = tool_call['function']['arguments']
-                                print(f"[Career Cube] Extracted content from 'tool_calls' field")
-                            else:
-                                print(f"[Career Cube] tool_calls present but no arguments found")
                         elif 'reasoning_content' in api_json:
-                            # Last resort - use reasoning (though it's probably not the actual output)
                             content = api_json['reasoning_content']
-                            print(f"[Career Cube] WARNING: Using 'reasoning_content' (may not be actual output)")
                         else:
-                            # If it already looks like our resume JSON, use it directly
                             if 'score' in api_json or 'rewritten_markdown' in api_json:
-                                print(f"[Career Cube] API response is already the resume JSON")
                                 content = api_json
-                            else:
-                                print(f"[Career Cube] WARNING: Unknown API response structure")
                 except json.JSONDecodeError:
-                    # Response is plain text, use as-is
-                    print(f"[Career Cube] API response is plain text")
                     pass
-                
-                print(f"[Career Cube] Content to parse (first 200 chars): {str(content)[:200]}")
-                
-                # Robust Extraction Logic (Same as Chef)
-                def extract_json(text):
-                    # If text is already a dict, return it
-                    if isinstance(text, dict):
-                        return text
-                    
-                    text = str(text).strip()
-                    if "```json" in text:
-                        text = text.split("```json")[1].split("```")[0]
-                    elif "```" in text:
-                         text = text.split("```")[1].split("```")[0]
-                    
-                    try: return json.loads(text)
-                    except: pass
-                    
-                    start = text.find("{")
-                    end = text.rfind("}")
-                    if start != -1 and end != -1:
-                        json_str = text[start:end+1]
-                        try: return json.loads(json_str)
-                        except: pass
-                    return None
 
-                data = extract_json(content)
+                data = extract_json(str(content))
                 if not data:
                      raise Exception("Failed to parse JSON response from AI.")
                 
                 print(f"[Career Cube] Raw AI Response Keys: {list(data.keys())}")
-                print(f"[Career Cube] Cover Letter from AI (first 100 chars): {str(data.get('cover_letter', 'MISSING'))[:100]}")
+                print(f"[Career Cube] Cover Letter from AI (first 100 chars): {str(data.get('cover_letter', 'MISSING'))[:100].encode('ascii', 'replace').decode('ascii')}")
                 
                 # Enforce Schema
                 data["score"] = data.get("score", 0)
@@ -273,7 +208,7 @@ Sincerely,
                 }
                 
             else:
-                 raise Exception(f"AI Provider Error: {response.status_code if response else 'Timeout'}")
+                 raise Exception("AI Provider Unavailable (All Routes Failed)")
 
         except Exception as e:
             print(f"[Career Cube Error] {str(e)}")

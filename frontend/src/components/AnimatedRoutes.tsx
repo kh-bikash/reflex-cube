@@ -5,6 +5,8 @@ import NotFound from "../pages/NotFound";
 import PromptModel from "./PromptModel";
 import ModelDashboard from "./ModelDashboard";
 import Services from "../pages/Services";
+import CubePage from "../pages/CubePage";
+import DocsTemplate from "../pages/DocsTemplate";
 import { PageTransition } from "./ui/PageTransition";
 
 export const AnimatedRoutes = () => {
@@ -33,6 +35,21 @@ export const AnimatedRoutes = () => {
                         <Services />
                     </PageTransition>
                 } />
+                <Route path="/cube/:id" element={
+                    <PageTransition>
+                        <CubePage />
+                    </PageTransition>
+                } />
+                
+                {/* Dynamic Content Routes mapping to the Docs Template */}
+                {['/api-docs', '/changelog', '/documentation', '/blog', '/community', '/support', '/status'].map(path => (
+                    <Route key={path} path={path} element={
+                        <PageTransition>
+                            <DocsTemplate />
+                        </PageTransition>
+                    } />
+                ))}
+
                 <Route path="*" element={
                     <PageTransition>
                         <NotFound />

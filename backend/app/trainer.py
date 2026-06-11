@@ -22,6 +22,7 @@ from .models import TrainingJob
 from .config import STORAGE_PATH
 
 import sys
+import os
 
 # Ensure stdout is UTF-8 to avoid Windows encoding crashes
 try:
@@ -67,7 +68,11 @@ def safe_load_dataset(name: str):
     safe_print(f"[Trainer] 🌍 Fetching REAL dataset '{name}' from Hugging Face Hub...")
     try:
         # Enforce real download. No mocks.
-        ds = load_dataset(name, trust_remote_code=True)
+        if "," in name:
+            base_name, config_name = name.split(",", 1)
+            ds = load_dataset(base_name, config_name, trust_remote_code=True)
+        else:
+            ds = load_dataset(name, trust_remote_code=True)
         safe_print(f"[Trainer] ✅ Successfully loaded '{name}'. Size: {len(ds['train'] if 'train' in ds else ds)} rows.")
         return ds
     except Exception as e:
@@ -185,7 +190,14 @@ def run_training_job(job_data, job_id):
 
         safe_print(f"[Trainer] Loading dataset {dataset_name} for task {task}...")
         update_job(job_id, status=f"loading_data_{dataset_name}", progress=20)
-        ds = safe_load_dataset(dataset_name)
+        try:
+            ds = safe_load_dataset(dataset_name)
+        except RuntimeError as e:
+            fallback_name = interpreter.get_fallback_dataset(task, prompt)
+            safe_print(f"[Trainer] Primary dataset '{dataset_name}' failed. Trying fallback '{fallback_name}'...")
+            dataset_name = fallback_name
+            ds = safe_load_dataset(dataset_name)
+            
         train_ds = ds["train"] if "train" in ds else ds
 
         # FULL POWER MODE: No truncation. Converting to list to avoid some streaming issues on Windows if needed, 
@@ -204,14 +216,18 @@ def run_training_job(job_data, job_id):
             if not text_col:
                 # If no known column, try the first one that contains strings
                 for k, v in examples.items():
-                    if isinstance(v, list) and isinstance(v[0], str):
-                        text = v,
+                    if isinstance(v, list) and len(v) > 0 and isinstance(v[0], str):
+                        text = v
                         text_col = k 
                         break
                 else:
                     text = [""] * len(examples[next(iter(examples))])
             else:
                 text = examples[text_col]
+            
+            # Ensure text is cast to string to avoid tokenizing floats
+            if isinstance(text, list):
+                text = [str(t) if t is not None else "" for t in text]
             
             # Tokenize INPUT
             enc = tokenizer(text, truncation=True, padding="max_length", max_length=128)
@@ -226,6 +242,8 @@ def run_training_job(job_data, job_id):
                 target_col = next((col for col in ["summary", "target", "label", "translation"] if col in examples and col != text_col), None)
                 if target_col:
                     targets = examples[target_col]
+                    if isinstance(targets, list):
+                        targets = [str(t) if t is not None else "" for t in targets]
                     with tokenizer.as_target_tokenizer():
                          labels = tokenizer(targets, truncation=True, padding="max_length", max_length=128)
                     enc["labels"] = labels["input_ids"]
@@ -269,6 +287,10 @@ def run_training_job(job_data, job_id):
                  names = train_ds.features["ner_tags"].feature.names
                  id2label = {i: name for i, name in enumerate(names)}
                  label2id = {name: i for i, name in enumerate(names)}
+
+        if not id2label:
+            id2label = {i: f"LABEL_{i}" for i in range(num_labels)}
+            label2id = {f"LABEL_{i}": i for i in range(num_labels)}
 
         safe_print(f"[Trainer] Detected {num_labels} labels: {list(id2label.values())}")
 

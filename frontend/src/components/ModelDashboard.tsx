@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllModels, requestModelZip, deleteModel, testModel } from "../lib/api";
-import { Card } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Progress } from "../components/ui/progress";
-import { Badge } from "../components/ui/badge";
-import { Play, Download, Cpu, Clock, CheckCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { Play, Download, Cpu, Clock, AlertTriangle, Trash2, Activity, Network } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ModelJob {
   id: string;
@@ -16,11 +13,26 @@ interface ModelJob {
   loss?: number;
   accuracy?: number;
   result_path?: string;
-
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   error?: string;
   task?: string;
 }
+
+const LiveWaveGraph = () => {
+  return (
+    <div className="w-full h-full flex items-end gap-1 opacity-50">
+      {Array.from({ length: 40 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="flex-1 bg-white/20 rounded-t-sm"
+          initial={{ height: "10%" }}
+          animate={{ height: `${Math.random() * 80 + 20}%` }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", delay: i * 0.05 }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const ModelDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<ModelJob[]>([]);
@@ -39,230 +51,220 @@ const ModelDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchJobs();
-    const interval = setInterval(fetchJobs, 5000);
+    const interval = setInterval(fetchJobs, 3000);
     return () => clearInterval(interval);
   }, []);
 
   const handleDownload = async (id: string) => {
     try {
       const z = await requestModelZip(id);
-      if (z?.url) {
-        window.open(z.url, "_blank");
-      } else {
-        alert("ZIP creation failed. Try again later.");
-      }
+      if (z?.url) window.open(z.url, "_blank");
     } catch {
-      alert("Download failed. Please check the backend logs.");
+      alert("Download failed.");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this model?")) return;
+    if (!confirm("Delete this model permanently?")) return;
     try {
       await deleteModel(id);
       setJobs(prev => prev.filter(j => j.id !== id));
     } catch (e) {
       console.error(e);
-      alert("Failed to delete model");
-    }
-  };
-
-  const colorByStatus = (status: string) => {
-    switch (status) {
-      case "completed": return "text-ai-green";
-      case "running": return "text-ai-blue";
-      case "queued": return "text-muted-foreground";
-      case "failed": return "text-red-500";
-      default: return "text-gray-400";
     }
   };
 
   if (loading) {
     return (
-      <section className="py-24 text-center text-muted-foreground">
-        <p>Loading models...</p>
+      <section className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>
+            <p className="text-white/40 font-mono text-sm tracking-widest uppercase">Initializing Neural Link...</p>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="py-24 relative">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-            Your AI Model Dashboard
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Monitor real-time training progress, analyze metrics, and manage your AI models — powered by your own backend.
-          </p>
+    <section className="relative min-h-screen pt-32 pb-24 overflow-hidden bg-[#000]">
+      {/* Abstract Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-screen">
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-[#000]/80 to-[#000]/60"></div>
+      </div>
+
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 border-b border-white/10 pb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-white/60 text-xs font-mono mb-4">
+                <Activity size={12} className="text-green-400" />
+                DASHBOARD ACTIVE
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-white">
+              Global <span className="text-white/40">Telemetry.</span>
+            </h2>
+          </div>
+          <div className="mt-4 md:mt-0 flex gap-4 text-sm font-mono text-white/40">
+              <div className="bg-[#111] border border-white/5 px-4 py-2 rounded-lg">
+                  <span className="text-white">Active Nodes:</span> {jobs.filter(j => j.status === 'running').length}
+              </div>
+              <div className="bg-[#111] border border-white/5 px-4 py-2 rounded-lg">
+                  <span className="text-white">Completed:</span> {jobs.filter(j => j.status === 'completed').length}
+              </div>
+          </div>
         </div>
 
-        <div className="max-w-6xl mx-auto">
-          <Card className="p-8 bg-gradient-card backdrop-blur-sm border-primary/10">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-              {/* Live Jobs */}
-              <div className="lg:col-span-2 space-y-6">
-                <h3 className="text-2xl font-semibold mb-4 text-foreground">Active Training Sessions</h3>
-                {jobs.filter(j => j.status !== "completed" && j.status !== "failed").length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No active sessions. Start training a new model!</p>
-                ) : (
-                  jobs
-                    .filter(j => j.status !== "completed" && j.status !== "failed")
-                    .map((job) => (
-                      <Card key={job.id} className="p-4 bg-secondary/30 border-ai-green/30">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-ai-green/20">
-                              <Cpu className="w-4 h-4 text-ai-green" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-foreground">{job.name}</h4>
-                              <p className="text-sm text-muted-foreground line-clamp-1">{job.prompt}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-ai-green/20 text-ai-green capitalize">{job.status}</Badge>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-zinc-300">Progress</span>
-                            <span className="text-white font-mono">{job.progress?.toFixed(1)}%</span>
-                          </div>
-                          <Progress value={job.progress || 0} className="h-2 bg-white/10" indicatorClassName="bg-ai-green" />
-                          <div className="flex justify-between text-xs text-zinc-400 pt-2">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              Epoch {job.epoch?.toFixed(1) || "0.0"}
-                            </span>
-                            <span className="flex items-center gap-1 text-red-400">
-                              Loss: {job.loss?.toFixed(4) || "N/A"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-xs text-zinc-500">
-                            <span>{job.status === "running" ? "Training in progress..." : "Queued"}</span>
-                            <span className="uppercase text-[10px] border border-white/10 px-1 rounded bg-black/50 text-zinc-300">{job.task || "GENERIC"}</span>
-                          </div>
-                        </div>
-                      </Card>
-                    ))
-                )}
-              </div>
-
-              {/* Completed Jobs */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Models</h3>
-                <div className="space-y-3">
-                  {jobs
-                    .filter(j => j.status === "completed")
-                    .slice(0, 4)
-                    .map((job) => (
-                      <Card key={job.id} className="p-3 bg-secondary/20">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-sm text-foreground">{job.name}</h4>
-                          <span className="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full border border-green-800">
-                            Ready
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs text-zinc-400 mt-2">
-                          <span>{job.prompt.substring(0, 30)}...</span>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="h-6 text-xs" onClick={() => handleDownload(job.id)}>
-                              <Download className="w-3 h-3 mr-1" /> Save
-                            </Button>
-                            <Button size="sm" variant="destructive" className="h-6 text-xs" onClick={() => handleDelete(job.id)}>
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Test Interface */}
-                        <div className="mt-3 pt-3 border-t border-white/5">
-                          <details className="text-xs group">
-                            <summary className="cursor-pointer hover:text-primary transition-colors py-2 font-medium flex items-center gap-2">
-                              <Play className="w-3 h-3" /> Test {job.task ? job.task.replace("-", " ") : "Model"}
-                            </summary>
-                            <div className="mt-2 space-y-2 pl-4 border-l border-white/10">
-                              <textarea
-                                id={`test-input-${job.id}`}
-                                className="w-full text-xs bg-zinc-900 border border-white/20 rounded p-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-neon-cyan/50 transition-colors font-mono"
-                                placeholder={job.task === 'summarization' ? "Paste text to summarize..." : "Enter prompt..."}
-                                rows={3}
-                              />
-                              <Button
-                                size="sm"
-                                className="w-full h-8 text-xs bg-primary/20 hover:bg-primary/30 border border-primary/30 text-white font-medium tracking-wide mt-2"
-                                onClick={async () => {
-                                  const input = (document.getElementById(`test-input-${job.id}`) as HTMLTextAreaElement).value;
-                                  if (!input) return;
-                                  const btn = document.getElementById(`test-btn-${job.id}`) as HTMLButtonElement;
-                                  const out = document.getElementById(`test-out-${job.id}`) as HTMLDivElement;
-
-                                  btn.disabled = true;
-                                  btn.innerText = "Running Inference...";
-                                  out.innerHTML = "<span class='animate-pulse'>Processing...</span>";
-
-                                  try {
-                                    const res = await testModel(job.id, input);
-                                    let output = res.result;
-
-                                    // Formatting based on task
-                                    if (Array.isArray(output)) {
-                                      // Classification / Sentiment
-                                      if (output[0]?.label) {
-                                        const score = (output[0].score * 100).toFixed(1);
-                                        out.innerHTML = `
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-200 font-bold uppercase border border-purple-500/30">${output[0].label}</span>
-                                                                <span class="text-white font-mono text-xs">${score}% confidence</span>
-                                                            </div>
-                                                        `;
-                                      } else {
-                                        out.innerText = JSON.stringify(output, null, 2);
-                                      }
-                                    } else if (typeof output === 'object') {
-                                      out.innerText = JSON.stringify(output, null, 2);
-                                    } else {
-                                      // Text Generation / Summarization
-                                      out.innerText = output;
-                                    }
-                                  } catch (e) {
-                                    out.innerText = "Error: Model not ready or inference failed.";
-                                  } finally {
-                                    btn.disabled = false;
-                                    btn.innerText = "Run Prediction";
-                                  }
-                                }}
-                                id={`test-btn-${job.id}`}
-                              >
-                                Run Prediction
-                              </Button>
-                              <div id={`test-out-${job.id}`} className="text-xs font-mono text-cyan-400 bg-black/60 p-3 rounded min-h-[40px] whitespace-pre-wrap border border-white/5"></div>
-                            </div>
-                          </details>
-                        </div>
-                      </Card>
-                    ))}
-
-                  {jobs.filter(j => j.status === "failed").length > 0 && (
-                    <Card className="p-3 bg-secondary/20 border-red-500/30">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-sm text-foreground">Failed Models</h4>
-                        <AlertTriangle className="w-4 h-4 text-red-500" />
-                      </div>
-                      {jobs
-                        .filter(j => j.status === "failed")
-                        .map((f) => (
-                          <p key={f.id} className="text-xs text-red-400 mb-1">
-                            {f.name || f.id.slice(0, 8)} — {f.error?.slice(0, 80)}...
-                          </p>
-                        ))}
-                    </Card>
-                  )}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          
+          {/* Active Training Bento */}
+          <div className="xl:col-span-8 flex flex-col gap-6">
+            <h3 className="text-xl font-semibold text-white flex items-center gap-2"><Network className="w-5 h-5 text-white/50" /> Active Operations</h3>
+            
+            {jobs.filter(j => j.status !== "completed" && j.status !== "failed").length === 0 ? (
+                <div className="w-full h-64 border border-white/5 rounded-3xl bg-[#0a0a0a]/50 backdrop-blur-xl flex flex-col items-center justify-center">
+                    <Cpu size={48} className="text-white/10 mb-4" />
+                    <p className="text-white/40 font-mono">No active operations detected.</p>
                 </div>
-              </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {jobs.filter(j => j.status !== "completed" && j.status !== "failed").map((job) => (
+                    <motion.div layout key={job.id} className="relative rounded-[2rem] p-6 overflow-hidden border border-white/10 bg-[#0a0a0a]/80 backdrop-blur-2xl shadow-2xl flex flex-col justify-between min-h-[300px]">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50 z-0 pointer-events-none"></div>
+                        
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-white">
+                                    <Cpu className="w-6 h-6" />
+                                </div>
+                                <div className="px-3 py-1 bg-white/10 rounded-full text-xs font-mono text-white/80 border border-white/10 flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                    {job.status.toUpperCase()}
+                                </div>
+                            </div>
+                            <h4 className="text-2xl font-bold text-white mb-2">{job.name}</h4>
+                            <p className="text-sm text-white/40 line-clamp-2">{job.prompt}</p>
+                        </div>
+
+                        <div className="relative z-10 mt-8">
+                            <div className="flex justify-between text-sm font-mono mb-2">
+                                <span className="text-white/40">ALLOCATION</span>
+                                <span className="text-white">{job.progress?.toFixed(1)}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-white relative"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${job.progress || 0}%` }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <div className="absolute top-0 right-0 bottom-0 w-20 bg-gradient-to-r from-transparent to-white opacity-50 blur-sm"></div>
+                                </motion.div>
+                            </div>
+                            
+                            <div className="flex justify-between mt-4 text-xs font-mono text-white/40">
+                                <div className="flex flex-col gap-1">
+                                    <span>EPOCH</span>
+                                    <span className="text-white text-lg">{job.epoch?.toFixed(1) || "0.0"}</span>
+                                </div>
+                                <div className="flex flex-col gap-1 text-right">
+                                    <span>LOSS</span>
+                                    <span className="text-white text-lg">{job.loss?.toFixed(4) || "N/A"}</span>
+                                </div>
+                            </div>
+                            
+                            {/* Live Graph Background inside the card */}
+                            <div className="absolute bottom-0 left-0 right-0 h-32 -z-10 opacity-20 pointer-events-none">
+                                <LiveWaveGraph />
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+                </div>
+            )}
+          </div>
+
+          {/* Archived / Completed */}
+          <div className="xl:col-span-4 flex flex-col gap-6">
+            <h3 className="text-xl font-semibold text-white flex items-center gap-2"><Clock className="w-5 h-5 text-white/50" /> System Archive</h3>
+            
+            <div className="flex flex-col gap-4">
+                {jobs.filter(j => j.status === "completed").slice(0, 5).map((job) => (
+                    <div key={job.id} className="p-5 rounded-3xl bg-[#0a0a0a] border border-white/5 hover:bg-[#111] transition-colors">
+                        <div className="flex justify-between items-start mb-3">
+                            <h4 className="font-bold text-white">{job.name}</h4>
+                            <span className="text-[10px] font-mono px-2 py-1 bg-white/10 text-white rounded-md uppercase tracking-wider">{job.task || "GENERIC"}</span>
+                        </div>
+                        <p className="text-xs text-white/40 line-clamp-1 mb-4">{job.prompt}</p>
+                        
+                        <div className="flex gap-2">
+                            <button onClick={() => handleDownload(job.id)} className="flex-1 bg-white text-black text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-white/80 transition-colors">
+                                <Download size={14} /> EXPORT
+                            </button>
+                            <button onClick={() => handleDelete(job.id)} className="px-4 bg-white/5 text-white/60 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors">
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+                        
+                        {/* Minimal Test UI */}
+                        <div className="mt-3 pt-3 border-t border-white/5">
+                            <details className="text-xs group cursor-pointer">
+                                <summary className="text-white/40 hover:text-white transition-colors font-mono flex items-center gap-2 outline-none list-none">
+                                    <Play size={12} /> RUN INFERENCE TEST
+                                </summary>
+                                <div className="mt-3">
+                                    <textarea
+                                        id={`test-input-${job.id}`}
+                                        className="w-full bg-[#000] border border-white/10 rounded-lg p-3 text-white placeholder:text-white/20 outline-none focus:border-white/30 font-mono text-xs resize-none"
+                                        placeholder="Enter payload..."
+                                        rows={2}
+                                    />
+                                    <button
+                                        id={`test-btn-${job.id}`}
+                                        className="w-full mt-2 py-2 bg-white/10 hover:bg-white/20 text-white font-mono text-xs rounded-lg transition-colors"
+                                        onClick={async () => {
+                                            const input = (document.getElementById(`test-input-${job.id}`) as HTMLTextAreaElement).value;
+                                            if (!input) return;
+                                            const btn = document.getElementById(`test-btn-${job.id}`) as HTMLButtonElement;
+                                            const out = document.getElementById(`test-out-${job.id}`) as HTMLDivElement;
+                                            btn.disabled = true; btn.innerText = "EXECUTING...";
+                                            out.innerHTML = "Processing...";
+                                            try {
+                                                const res = await testModel(job.id, input);
+                                                out.innerText = typeof res.result === 'object' ? JSON.stringify(res.result, null, 2) : res.result;
+                                            } catch {
+                                                out.innerText = "ERROR: Inference failed.";
+                                            } finally {
+                                                btn.disabled = false; btn.innerText = "EXECUTE";
+                                            }
+                                        }}
+                                    >
+                                        EXECUTE
+                                    </button>
+                                    <div id={`test-out-${job.id}`} className="mt-2 text-[10px] font-mono text-white/60 bg-[#000] p-3 rounded-lg border border-white/5 min-h-[40px] break-all"></div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                ))}
+
+                {jobs.filter(j => j.status === "failed").length > 0 && (
+                    <div className="p-5 rounded-3xl bg-red-950/20 border border-red-500/20">
+                        <div className="flex items-center gap-2 mb-3">
+                            <AlertTriangle className="text-red-400 w-4 h-4" />
+                            <h4 className="font-bold text-red-400 text-sm font-mono">CRITICAL FAILURES</h4>
+                        </div>
+                        {jobs.filter(j => j.status === "failed").map(f => (
+                            <div key={f.id} className="text-xs font-mono text-red-400/60 mb-2 border-l-2 border-red-500/30 pl-2">
+                                <span className="text-red-400">{f.name}</span>: {f.error?.slice(0,50)}...
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-          </Card>
+          </div>
+
         </div>
       </div>
     </section>
